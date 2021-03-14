@@ -10,12 +10,18 @@ class MyBot extends DiscordClient {
   Future onReady(dynamic event) async {
     print('Ready!');
     var sent = await sendMessage('805087651450978337', {'content': 'bop!'});
-    print('I (${sent.author.username}) sent "${sent.content}" to ${sent.channelId}');
+    print(
+      'I (${sent.author.username}) sent "${sent.content}" to ${sent.channelId}',
+    );
   }
 
   @override
   Future onMessageCreate(Message message) async {
     print('New message from ${message.author.username}');
+    if (message.guildId != null) {
+      var guild = await getGuild(message.guildId!, withCounts: true);
+      print('Found guild with ID ${guild.id} named ${guild.name}');
+    }
   }
 
   @override

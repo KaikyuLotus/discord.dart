@@ -1,4 +1,5 @@
 import 'package:discord/discord.dart';
+import 'package:discord/internal/internal.dart';
 
 class Role {
   final String id;
@@ -33,7 +34,7 @@ class Role {
       permissions: json['permissions']!,
       managed: json['managed']!,
       mentionable: json['mentionable']!,
-      tags: json['tags'],
+      tags: ifNotNull(RoleTags.fromJson, json['tags']),
     );
   }
 

@@ -7,6 +7,13 @@ class ActivityParty {
     this.size,
   });
 
+  static ActivityParty fromJson(Map<String, dynamic> json) {
+    return ActivityParty(
+      id: json['id'],
+      size: json['size'],
+    );
+  }
+
   Map toJson() {
     return {
       'id': id,

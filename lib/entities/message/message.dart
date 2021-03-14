@@ -61,6 +61,7 @@ class Message {
   });
 
   static Message fromJson(Map<String, dynamic> json) {
+    print(json);
     return Message(
       id: json['id'],
       channelId: json['channel_id'],

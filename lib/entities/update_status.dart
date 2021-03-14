@@ -3,7 +3,7 @@ import 'package:discord/internal/internal.dart';
 
 class UpdateStatus {
   final int? since;
-  final List<UserActivity>? activities;
+  final List<Activity>? activities;
   final UserStatus status;
   final bool afk;
 
@@ -17,7 +17,7 @@ class UpdateStatus {
   static UpdateStatus fromJson(Map<String, dynamic> json) {
     return UpdateStatus(
       status: UserStatus.fromString(json['status']),
-      activities: fromArray(UserActivity.fromJson, json['activities']),
+      activities: fromArray(Activity.fromJson, json['activities']),
       since: json['since'],
       afk: json['afk'],
     );

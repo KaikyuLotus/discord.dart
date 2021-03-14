@@ -1,6 +1,7 @@
 import 'package:discord/discord.dart';
+import 'package:discord/internal/internal.dart';
 
-class UserActivity {
+class Activity {
   final String name;
   final UserActivityType type;
   final String? url;
@@ -16,7 +17,7 @@ class UserActivity {
   final bool? instance;
   final int? flags;
 
-  UserActivity({
+  Activity({
     required this.name,
     required this.type,
     this.url,
@@ -33,8 +34,23 @@ class UserActivity {
     this.flags,
   });
 
-  static UserActivity fromJson(Map<String, dynamic> fromJson) {
-    throw Exception('Unimplemented');
+  static Activity fromJson(Map<String, dynamic> json) {
+    return Activity(
+      name: json['name'],
+      type: UserActivityType.fromInt(json['type']),
+      url: json['url'],
+      createdAt: json['createdAt'],
+      timestamps: ifNotNull(Timestamp.fromJson, json['timestamps']),
+      applicationId: json['applicationId'],
+      details: json['details'],
+      state: json['state'],
+      emoji: ifNotNull(ActivityEmoji.fromJson, json['emoji']),
+      party: ifNotNull(ActivityParty.fromJson, json['party']),
+      assets: ifNotNull(ActivityAssets.fromJson, json['assets']),
+      secrets: ifNotNull(ActivitySecrets.fromJson, json['secrets']),
+      instance: json['instance'],
+      flags: json['flags'],
+    );
   }
 
   Map toJson() {

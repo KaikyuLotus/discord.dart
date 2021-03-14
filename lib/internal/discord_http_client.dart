@@ -20,17 +20,31 @@ class DiscordHTTPClient {
   }
 
   Future<T> request<T>(
-    String endpoint,
-    Map<String, dynamic> body,
-    T Function(Map<String, dynamic>) converter,
-  ) async {
+    String endpoint, {
+    required T Function(Map<String, dynamic>) converter,
+    Map<String, dynamic>? body,
+  }) async {
     var uri = Uri.parse('$_baseUrl$endpoint');
     var headers = {
       'User-Agent': '$_name ($_name, $_version)',
       'Authorization': 'Bot $_token',
     };
-    var resp = await _client.post(uri, headers: headers, body: body);
-    var jsonData = json.decode(resp.body);
+    var request = Request(body != null ? 'post' : 'get', uri);
+    if (body != null) {
+      headers['Content-Type'] = 'application/json';
+      var stringBody = json.encode(body);
+      request.body = stringBody;
+    }
+    request.headers.addAll(headers);
+
+    var response = await _client.send(request);
+    var responseString = await response.stream.bytesToString();
+    // TODO handle all 2xx codes
+    if (response.statusCode != 200) {
+      // TODO specialized exception
+      throw Exception(responseString);
+    }
+    var jsonData = json.decode(responseString);
     return converter(jsonData);
   }
 }

@@ -11,6 +11,15 @@ class ActivityAssets {
     this.smallText,
   });
 
+  static ActivityAssets fromJson(Map<String, dynamic> json) {
+    return ActivityAssets(
+      largeImage: json['largeImage'],
+      largeText: json['largeText'],
+      smallImage: json['smallImage'],
+      smallText: json['smallText'],
+    );
+  }
+
   Map toJson() {
     return {
       'large_image': largeImage,

@@ -9,6 +9,14 @@ class ActivityEmoji {
     this.animated,
   });
 
+  static ActivityEmoji fromJson(Map<String, dynamic> json) {
+    return ActivityEmoji(
+      name: json['name']!,
+      id: json['id'],
+      animated: json['animated'],
+    );
+  }
+
   Map toJson() {
     return {
       'name': name,

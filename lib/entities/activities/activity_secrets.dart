@@ -9,6 +9,14 @@ class ActivitySecrets {
     this.match,
   });
 
+  static ActivitySecrets fromJson(Map<String, dynamic> json) {
+    return ActivitySecrets(
+      join: json['join'],
+      spectate: json['spectate'],
+      match: json['match'],
+    );
+  }
+
   Map toJson() {
     return {
       'join': join,
