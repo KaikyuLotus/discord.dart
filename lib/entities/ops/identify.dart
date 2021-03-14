@@ -15,7 +15,7 @@ class Identify implements Rpcable {
 
   int get intentsShift => intents.isEmpty
       ? 0
-      : (intents.map((i) => 1 << i.value).reduce((a, b) => a + b));
+      : intents.map((i) => 1 << i.value).reduce((a, b) => a + b);
 
   Identify({
     required this.token,
@@ -29,7 +29,6 @@ class Identify implements Rpcable {
   });
 
   Map toJson() {
-    print(intentsShift);
     return {
       'token': token,
       'properties': properties,

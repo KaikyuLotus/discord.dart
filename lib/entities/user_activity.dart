@@ -33,6 +33,10 @@ class UserActivity {
     this.flags,
   });
 
+  static UserActivity fromJson(Map<String, dynamic> fromJson) {
+    throw Exception('Unimplemented');
+  }
+
   Map toJson() {
     return {
       'name': name,

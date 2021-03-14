@@ -9,7 +9,7 @@ class UserStatus {
 
   UserStatus._(this._status);
 
-  UserStatus fromString(String status) {
+  static UserStatus fromString(String status) {
     return UserStatus._(status);
   }
 
@@ -34,7 +34,7 @@ class UserActivityType {
 
   UserActivityType._(this._type);
 
-  UserActivityType fromInt(int type) {
+  static UserActivityType fromInt(int type) {
     return UserActivityType._(type);
   }
 
@@ -91,7 +91,7 @@ class Intent {
 
   Intent._(this.value);
 
-  Intent fromInt(int value) {
+  static Intent fromInt(int value) {
     return Intent._(value);
   }
 

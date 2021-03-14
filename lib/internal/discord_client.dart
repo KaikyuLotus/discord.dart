@@ -3,38 +3,41 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:discord/discord.dart';
-import 'package:discord/entities/ops/heartbeat.dart';
-import 'package:discord/entities/ops/rpcable.dart';
+import 'package:discord/internal/internal.dart';
 
 class DiscordClient {
   static final int _apiVersion = 8;
 
   late final Map<int, Function(dynamic)> handlers;
 
-  late final Map<String, Function(dynamic)> gatewayHandlers;
-
   late final WebSocket _ws;
 
-  final String token;
+  late final DiscordHTTPClient _http;
+
+  final String _token;
 
   final List<Intent> intents;
 
-  DiscordClient._(
-    this.token,
-    WebSocket ws, {
+  DiscordHTTPClient get http => _http;
+
+  DiscordClient(
+    this._token, {
     required this.intents,
   }) {
+    _http = DiscordHTTPClient(_token);
     handlers = {
       0: _onGatewayEvent,
       9: _onInvalidSession,
       10: _onHello,
       11: (e) {},
     };
-    gatewayHandlers = {
-      'READY': _onReady,
-      'GUILD_CREATE': _onGuildCreated,
-    };
-    _ws = ws;
+  }
+
+  Future run() async {
+    // TODO get dynamic websocket url
+    _ws = await WebSocket.connect(
+      'wss://gateway.discord.gg/?v=$_apiVersion&encoding=json',
+    );
     print('Listening WebSocket...');
     _ws.listen(_onWebSocketEvent).onError(_onWebSocketError);
     _ws.handleError((err) {
@@ -43,17 +46,12 @@ class DiscordClient {
   }
 
   // TODO handle oauth2 for users
-  static Future<DiscordClient> fromToken(
+  static DiscordClient fromToken(
     String token, {
     required List<Intent> intents,
-  }) async {
-    // TODO get dynamic websocket url
-    final channel = await WebSocket.connect(
-      'wss://gateway.discord.gg/?v=$_apiVersion&encoding=json',
-    );
-    return DiscordClient._(
+  }) {
+    return DiscordClient(
       token,
-      channel,
       intents: intents,
     );
   }
@@ -67,13 +65,13 @@ class DiscordClient {
     print(stackTrace);
   }
 
-  void _onWebSocketEvent(event) {
+  Future _onWebSocketEvent(event) async {
     try {
       var data = json.decode('$event');
       var opCode = data['op'] as int;
 
       if (handlers.containsKey(opCode)) {
-        return handlers[opCode]!(data);
+        return await handlers[opCode]!(data);
       }
 
       print('Unknown op code: $opCode');
@@ -83,24 +81,23 @@ class DiscordClient {
     }
   }
 
-  void _onGatewayEvent(dynamic event) {
+  Future _onGatewayEvent(dynamic event) async {
     var eventType = event['t'];
-    if (gatewayHandlers.containsKey(eventType)) {
-      return gatewayHandlers[eventType]!(event['d']);
+
+    if (eventType == 'READY') {
+      return await _onReady(event['d']);
     }
-    print('Unknown gateway event: $eventType:\n$event');
-  }
 
-  // OP handlers
+    if (eventType == 'MESSAGE_CREATE') {
+      return await onMessageCreate(Message.fromJson(event['d']));
+    }
 
-  void emptyHandler(dynamic event) {
-    print('Empty handler called');
-    print(json.encode(event));
+    await _onEvent(eventType, event['d']);
   }
 
   void _identify() {
     _send(Identify(
-      token: token,
+      token: _token,
       intents: intents,
       properties: ConnectionProperties(
         os: 'linux',
@@ -113,6 +110,7 @@ class DiscordClient {
     ));
   }
 
+  // OP handlers
   void _onHello(dynamic event) {
     var heartbeatInterval = event['d']['heartbeat_interval'] as int;
     Timer.periodic(
@@ -129,12 +127,18 @@ class DiscordClient {
   // Gateway events
 
   // TODO correct type mapping
-  void _onReady(dynamic event) {
-    print(event);
+  Future _onReady(dynamic event) async {
+    await onReady(event);
   }
 
-  // TODO correct type mapping
-  void _onGuildCreated(dynamic event) {
-    print(event);
+  Future _onEvent(String type, dynamic event) async {
+    await onEvent(type, event);
   }
+
+  Future onReady(dynamic event) async {}
+
+  Future onEvent(String type, dynamic event) async {}
+
+  Future onMessageCreate(Message message) async {}
+
 }

@@ -1,4 +1,5 @@
 import 'package:discord/discord.dart';
+import 'package:discord/internal/internal.dart';
 
 class UpdateStatus {
   final int? since;
@@ -8,10 +9,19 @@ class UpdateStatus {
 
   UpdateStatus({
     required this.status,
-    this.afk = false,
     this.activities,
     this.since,
+    this.afk = false,
   });
+
+  static UpdateStatus fromJson(Map<String, dynamic> json) {
+    return UpdateStatus(
+      status: UserStatus.fromString(json['status']),
+      activities: fromArray(UserActivity.fromJson, json['activities']),
+      since: json['since'],
+      afk: json['afk'],
+    );
+  }
 
   Map toJson() {
     return {
