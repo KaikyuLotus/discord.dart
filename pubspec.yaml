@@ -1,0 +1,14 @@
+name: discord
+description: Discord API wrapper, still under heavy development.
+version: 0.0.1
+homepage: https://github.com/KaikyuLotus/discord.dart
+
+dependencies:
+  http: ^0.13.0
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.14.4
