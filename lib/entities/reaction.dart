@@ -15,7 +15,7 @@ class Reaction {
     return Reaction(
       count: json['count']!,
       me: json['me']!,
-      emoji: json['emoji']!,
+      emoji: Emoji.fromJson(json['emoji']!),
     );
   }
 

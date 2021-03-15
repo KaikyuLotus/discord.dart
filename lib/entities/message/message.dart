@@ -16,7 +16,7 @@ class Message {
   final List<Role> mentionRoles;
   final List<ChannelMention>? mentionChannels;
   final List<Attachment> attachments;
-  final List<EmbedElement> embeds;
+  final List<Embed> embeds;
   final List<Reaction>? reactions;
   final String? nonce;
   final bool pinned;
@@ -61,7 +61,6 @@ class Message {
   });
 
   static Message fromJson(Map<String, dynamic> json) {
-    print(json);
     return Message(
       id: json['id'],
       channelId: json['channel_id'],
@@ -80,7 +79,7 @@ class Message {
         json['mention_channels'],
       ),
       attachments: fromArray(Attachment.fromJson, json['attachments'])!,
-      embeds: fromArray(EmbedElement.fromJson, json['embeds'])!,
+      embeds: fromArray(Embed.fromJson, json['embeds'])!,
       reactions: fromArray(Reaction.fromJson, json['reactions']),
       nonce: json['nonce'],
       pinned: json['pinned'],

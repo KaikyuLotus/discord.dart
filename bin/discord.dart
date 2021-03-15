@@ -1,38 +1,37 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:discord/discord.dart';
 
-class MyBot extends DiscordClient {
-  MyBot(String token) : super(token, intents: Intent.all);
+Future onReady(DiscordClient client, dynamic event) async {
+  print('Ready!');
+}
 
-  @override
-  Future onReady(dynamic event) async {
-    print('Ready!');
-    var sent = await sendMessage('805087651450978337', {'content': 'bop!'});
-    print(
-      'I (${sent.author.username}) sent "${sent.content}" to ${sent.channelId}',
-    );
-  }
-
-  @override
-  Future onMessageCreate(Message message) async {
-    print('New message from ${message.author.username}');
-    if (message.guildId != null) {
-      var guild = await getGuild(message.guildId!, withCounts: true);
-      print('Found guild with ID ${guild.id} named ${guild.name}');
-    }
-  }
-
-  @override
-  Future onEvent(String type, dynamic event) async {
-    print('New event of type $type: ${json.encode(event)}');
-  }
+Future onMessageCreate(DiscordClient client, Message message) async {
+  print('New message from ${message.author.username}');
 }
 
 void main(List<String> arguments) async {
   var token = Platform.environment['BOT_TOKEN']!;
 
-  var bot = MyBot(token);
-  await bot.run();
+  var client = DiscordClient(token, intents: Intent.all);
+
+  client.onReady = onReady;
+  client.onMessageCreate = onMessageCreate;
+
+  await client.run();
+
+  var messages = await client.channel.getMessages(
+    '805087651450978337',
+    limit: 1,
+  );
+  print(messages.length);
+
+  var message = messages[0];
+
+  var users = await client.channel.getReactions(
+    message.channelId,
+    messageId: message.id,
+    emoji: '❤',
+  );
+  print(users.first.username);
 }

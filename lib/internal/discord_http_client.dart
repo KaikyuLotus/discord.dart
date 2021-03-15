@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:discord/internal/internal.dart';
 import 'package:http/http.dart';
 
 class DiscordHTTPClient {
@@ -19,17 +20,27 @@ class DiscordHTTPClient {
     _client = Client();
   }
 
+  List<T> Function(Map<String, dynamic>) listMapper<T>(
+      T Function(Map<String, dynamic>) mapper) {
+    return (Map<String, dynamic> arrObj) => fromArray(mapper, arrObj['arr'])!;
+  }
+
   Future<T> request<T>(
     String endpoint, {
     required T Function(Map<String, dynamic>) converter,
-    Map<String, dynamic>? body,
+    Map? body,
+    Map<String, String?>? query,
+    String method = 'get',
   }) async {
     var uri = Uri.parse('$_baseUrl$endpoint');
+    if (query != null) {
+      uri = uri.replace(queryParameters: query);
+    }
     var headers = {
       'User-Agent': '$_name ($_name, $_version)',
       'Authorization': 'Bot $_token',
     };
-    var request = Request(body != null ? 'post' : 'get', uri);
+    var request = Request(method.toUpperCase(), uri);
     if (body != null) {
       headers['Content-Type'] = 'application/json';
       var stringBody = json.encode(body);
@@ -38,13 +49,20 @@ class DiscordHTTPClient {
     request.headers.addAll(headers);
 
     var response = await _client.send(request);
-    var responseString = await response.stream.bytesToString();
+
+    if (response.statusCode == 204) {
+      return Future.value(null);
+    }
+
     // TODO handle all 2xx codes
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       // TODO specialized exception
+      var responseString = await response.stream.bytesToString();
       throw Exception(responseString);
     }
+
+    var responseString = await response.stream.bytesToString();
     var jsonData = json.decode(responseString);
-    return converter(jsonData);
+    return converter(jsonData is List ? {'arr': jsonData} : jsonData);
   }
 }

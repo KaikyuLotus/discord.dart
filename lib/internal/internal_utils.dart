@@ -9,3 +9,13 @@ List<T>? fromArray<T>(
   if (jsonArr == null) return null;
   return List.generate(jsonArr.length, (i) => foo(jsonArr[i]));
 }
+
+Map insertNotNull(String key, dynamic value) {
+  return value != null ? {key: value} : {};
+}
+
+extension MapExt on Map {
+  void filterNullValues<K, V>() {
+    removeWhere((_, value) => value == null);
+  }
+}

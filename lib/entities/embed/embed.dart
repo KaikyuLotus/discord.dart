@@ -1,9 +1,10 @@
 import 'package:discord/discord.dart';
 import 'package:discord/internal/internal.dart';
 
-class EmbedElement {
+class Embed {
   final String? title;
 
+  // rich, image, video, gifv, article, link
   // TODO enum from https://discord.com/developers/docs/resources/channel#embed-object-embed-types
   final String? type;
   final String? description;
@@ -18,7 +19,7 @@ class EmbedElement {
   final EmbedAuthor? author;
   final List<EmbedField>? fields;
 
-  EmbedElement({
+  Embed({
     this.title,
     this.type,
     this.description,
@@ -34,8 +35,8 @@ class EmbedElement {
     this.fields,
   });
 
-  static EmbedElement fromJson(Map<String, dynamic> json) {
-    return EmbedElement(
+  static Embed fromJson(Map<String, dynamic> json) {
+    return Embed(
       title: json['title'],
       type: json['type'],
       description: json['description'],

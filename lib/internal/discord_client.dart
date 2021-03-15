@@ -12,19 +12,28 @@ class DiscordClient {
 
   late final WebSocket _ws;
 
-  late final DiscordHTTPClient _http;
+  late final DiscordHTTPClient http;
+
+  late final GuildsApi guilds = GuildsApi(http);
+
+  late final ChannelApi channel = ChannelApi(http);
 
   final String _token;
 
   final List<Intent> intents;
 
-  DiscordHTTPClient get http => _http;
+  // Event handlers
+  Future Function(DiscordClient client, dynamic event)? onReady;
+
+  Future Function(DiscordClient client, Message event)? onMessageCreate;
+
+  Future Function(DiscordClient client, String type, dynamic event)? onEvent;
 
   DiscordClient(
     this._token, {
     required this.intents,
   }) {
-    _http = DiscordHTTPClient(_token);
+    http = DiscordHTTPClient(_token);
     handlers = {
       0: _onGatewayEvent,
       9: _onInvalidSession,
@@ -89,7 +98,7 @@ class DiscordClient {
     }
 
     if (eventType == 'MESSAGE_CREATE') {
-      return await onMessageCreate(Message.fromJson(event['d']));
+      return await onMessageCreate?.call(this, Message.fromJson(event['d']));
     }
 
     await _onEvent(eventType, event['d']);
@@ -128,17 +137,10 @@ class DiscordClient {
 
   // TODO correct type mapping
   Future _onReady(dynamic event) async {
-    await onReady(event);
+    await onReady?.call(this, event);
   }
 
   Future _onEvent(String type, dynamic event) async {
-    await onEvent(type, event);
+    await onEvent?.call(this, type, event);
   }
-
-  Future onReady(dynamic event) async {}
-
-  Future onEvent(String type, dynamic event) async {}
-
-  Future onMessageCreate(Message message) async {}
-
 }
