@@ -19,11 +19,11 @@ class Attachment {
 
   static Attachment fromJson(Map<String, dynamic> json) {
     return Attachment(
-      id: json['id']!,
-      filename: json['filename']!,
-      size: json['size']!,
-      url: json['url']!,
-      proxyUrl: json['proxy_url']!,
+      id: json['id'],
+      filename: json['filename'],
+      size: json['size'],
+      url: json['url'],
+      proxyUrl: json['proxy_url'],
       height: json['height'],
       width: json['width'],
     );

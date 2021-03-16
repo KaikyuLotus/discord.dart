@@ -31,9 +31,9 @@ class User {
 
   static User fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id']!,
-      username: json['username']!,
-      discriminator: json['discriminator']!,
+      id: json['id'],
+      username: json['username'],
+      discriminator: json['discriminator'],
       avatar: json['avatar'],
       bot: json['bot'],
       system: json['system'],

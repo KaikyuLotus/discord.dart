@@ -15,7 +15,7 @@ class MessageReference {
     return MessageReference(
       messageId: json['message_id'],
       channelId: json['channel_id'],
-      guildId: json['guild_id']!,
+      guildId: json['guild_id'],
       failIfNotExists: json['fail_if_not_exists'],
     );
   }

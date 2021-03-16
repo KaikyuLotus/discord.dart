@@ -15,11 +15,11 @@ class MessageApplication {
 
   static MessageApplication fromJson(Map<String, dynamic> json) {
     return MessageApplication(
-      id: json['id']!,
+      id: json['id'],
       coverImage: json['cover_image'],
-      description: json['description']!,
+      description: json['description'],
       icon: json['icon'],
-      name: json['name']!,
+      name: json['name'],
     );
   }
 

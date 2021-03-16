@@ -10,7 +10,7 @@ class MessageActivity {
 
   static MessageActivity fromJson(Map<String, dynamic> json) {
     return MessageActivity(
-      type: json['type']!,
+      type: json['type'],
       partyId: json['party_id'],
     );
   }

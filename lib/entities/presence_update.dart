@@ -19,8 +19,8 @@ class PresenceUpdate {
   static PresenceUpdate fromJson(Map<String, dynamic> json) {
     return PresenceUpdate(
       user: User.fromJson(json['user']),
-      guildId: json['guild_id']!,
-      status: json['status']!,
+      guildId: json['guild_id'],
+      status: json['status'],
       activities: fromArray(Activity.fromJson, json['activities'])!,
       clientStatus: ClientStatus.fromJson(json['client_status']),
     );

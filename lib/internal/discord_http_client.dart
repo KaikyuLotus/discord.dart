@@ -21,9 +21,12 @@ class DiscordHTTPClient {
   }
 
   List<T> Function(Map<String, dynamic>) listMapper<T>(
-      T Function(Map<String, dynamic>) mapper) {
+    T Function(Map<String, dynamic>) mapper,
+  ) {
     return (Map<String, dynamic> arrObj) => fromArray(mapper, arrObj['arr'])!;
   }
+
+  Null asNull(dynamic json) => null;
 
   Future<T> request<T>(
     String endpoint, {

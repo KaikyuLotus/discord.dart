@@ -13,8 +13,8 @@ class Reaction {
 
   static Reaction fromJson(Map<String, dynamic> json) {
     return Reaction(
-      count: json['count']!,
-      me: json['me']!,
+      count: json['count'],
+      me: json['me'],
       emoji: Emoji.fromJson(json['emoji']!),
     );
   }

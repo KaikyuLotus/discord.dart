@@ -1,14 +1,14 @@
 import 'package:discord/discord.dart';
 import 'package:discord/internal/internal.dart';
 
-class GuildsApi {
-  final DiscordHTTPClient http;
+class GuildsAPI {
+  final DiscordHTTPClient _http;
 
-  GuildsApi(this.http);
+  GuildsAPI(this._http);
 
   Future<Guild> get(String guildId, {bool withCounts = false}) {
     var endpoint = '/guilds/$guildId';
-    return http.request(endpoint, converter: Guild.fromJson);
+    return _http.request(endpoint, converter: Guild.fromJson);
   }
 
   // TODO channel type enum https://discord.com/developers/docs/resources/channel#channel-object-channel-types
@@ -26,7 +26,7 @@ class GuildsApi {
     bool? nsfw,
   }) {
     var endpoint = '/guilds/$guildId/channels';
-    return http.request(
+    return _http.request(
       endpoint,
       converter: Channel.fromJson,
       method: 'post',
@@ -46,14 +46,25 @@ class GuildsApi {
   }
 }
 
-class ChannelApi {
-  final DiscordHTTPClient http;
+class AuditLogAPI {
+  final DiscordHTTPClient _http;
 
-  ChannelApi(this.http);
+  AuditLogAPI(this._http);
+
+  Future<AuditLogs> getGuildAuditLog(String guildId) {
+    var endpoint = '/guilds/$guildId/audit-logs';
+    return _http.request(endpoint, converter: AuditLogs.fromJson);
+  }
+}
+
+class ChannelAPI {
+  final DiscordHTTPClient _http;
+
+  ChannelAPI(this._http);
 
   Future<Channel> get(String channelId) {
     var endpoint = '/channels/$channelId';
-    return http.request(endpoint, converter: Channel.fromJson);
+    return _http.request(endpoint, converter: Channel.fromJson);
   }
 
   Future<Channel> modify(
@@ -70,7 +81,7 @@ class ChannelApi {
     String? parentId,
   }) {
     var endpoint = '/channels/$channelId';
-    return http.request(
+    return _http.request(
       endpoint,
       converter: Channel.fromJson,
       method: 'patch',
@@ -91,7 +102,7 @@ class ChannelApi {
 
   Future<Channel> delete(String channelId) {
     var endpoint = '/channels/$channelId';
-    return http.request(
+    return _http.request(
       endpoint,
       converter: Channel.fromJson,
       method: 'delete',
@@ -106,9 +117,9 @@ class ChannelApi {
     int? limit,
   }) {
     var endpoint = '/channels/$channelId/messages';
-    return http.request(
+    return _http.request(
       endpoint,
-      converter: http.listMapper(Message.fromJson),
+      converter: _http.listMapper(Message.fromJson),
       method: 'get',
       query: {
         'around': around,
@@ -121,7 +132,7 @@ class ChannelApi {
 
   Future<Message> getMessage(String channelId, String messageId) {
     var endpoint = '/channels/$channelId/messages/$messageId';
-    return http.request(endpoint, converter: Message.fromJson);
+    return _http.request(endpoint, converter: Message.fromJson);
   }
 
   Future<Message> createMessage(
@@ -134,7 +145,7 @@ class ChannelApi {
     MessageReference? messageReference,
   }) {
     var endpoint = '/channels/$channelId/messages';
-    return http.request(
+    return _http.request(
       endpoint,
       converter: Message.fromJson,
       method: 'post',
@@ -150,7 +161,7 @@ class ChannelApi {
 
   Future<Message> crosspostMessage(String channelId, String messageId) {
     var endpoint = '/channels/$channelId/messages/$messageId/crosspost';
-    return http.request(endpoint, converter: Message.fromJson, method: 'post');
+    return _http.request(endpoint, converter: Message.fromJson, method: 'post');
   }
 
   Future createReaction(
@@ -159,7 +170,7 @@ class ChannelApi {
     required String emoji,
   }) {
     var endp = '/channels/$channelId/messages/$messageId/reactions/$emoji/@me';
-    return http.request(endp, converter: (j) => null, method: 'put');
+    return _http.request(endp, converter: _http.asNull, method: 'put');
   }
 
   Future deleteOwnReaction(
@@ -168,7 +179,7 @@ class ChannelApi {
     required String emoji,
   }) {
     var endp = '/channels/$channelId/messages/$messageId/reactions/$emoji/@me';
-    return http.request(endp, converter: (j) => null, method: 'delete');
+    return _http.request(endp, converter: _http.asNull, method: 'delete');
   }
 
   Future deleteUserReaction(
@@ -179,7 +190,7 @@ class ChannelApi {
   }) {
     var endp = '/channels/$channelId/messages/'
         '$messageId/reactions/$emoji/$userId';
-    return http.request(endp, converter: (j) => null, method: 'delete');
+    return _http.request(endp, converter: _http.asNull, method: 'delete');
   }
 
   Future<List<User>> getReactions(
@@ -188,9 +199,9 @@ class ChannelApi {
     required String emoji,
   }) {
     var endpoint = '/channels/$channelId/messages/$messageId/reactions/$emoji';
-    return http.request(
+    return _http.request(
       endpoint,
-      converter: http.listMapper(User.fromJson),
+      converter: _http.listMapper(User.fromJson),
       method: 'get',
     );
   }
@@ -204,8 +215,228 @@ class ChannelApi {
     if (emoji != null) {
       endp += '/$emoji';
     }
-    return http.request(endp, converter: (j) => null, method: 'delete');
+    return _http.request(endp, converter: _http.asNull, method: 'delete');
   }
 
+  Future<Message> editMessage(
+    String channelId, {
+    required String messageId,
+    String? content,
+    Embed? embed,
+    int? flags,
+    AllowedMentions? allowedMentions,
+  }) {
+    var endpoint = '/channels/$channelId/messages/$messageId';
+    return _http
+        .request(endpoint, converter: Message.fromJson, method: 'patch', body: {
+      ...insertNotNull('content', content),
+      ...insertNotNull('embed', embed),
+      ...insertNotNull('flags', flags),
+      ...insertNotNull('allowedMentions', allowedMentions),
+    });
+  }
 
+  Future deleteMessage(String channelId, String messageId) {
+    var endpoint = '/channels/$channelId/messages/$messageId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future bulkDeleteMessages(
+    String channelId, {
+    required List<String> messages,
+  }) {
+    var endpoint = '/channels/$channelId/messages/bulk-delete';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'post',
+      body: {
+        'messages': messages,
+      },
+    );
+  }
+
+  // See https://discord.com/developers/docs/topics/permissions#permissions
+  Future editPermissions(
+    String channelId, {
+    required String overwriteId,
+    required String allow,
+    required String deny,
+    required int type,
+  }) {
+    var endpoint = '/channels/$channelId/permissions/$overwriteId';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'put',
+      body: {
+        'allow': allow,
+        'deny': deny,
+        'type': type,
+      },
+    );
+  }
+
+  Future<List<Invite>> getInvites(String channelId) {
+    var endpoint = '/channels/$channelId/invites';
+    return _http.request(endpoint,
+        converter: _http.listMapper(Invite.fromJson));
+  }
+
+  Future createInvite(
+    String channelId, {
+    int? maxAge, //seconds
+    int? maxUses,
+    bool? temporary,
+    bool? unique,
+    String? targetUser,
+    String? targetUserType,
+  }) {
+    var endpoint = '/channels/$channelId/invites';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'post',
+      body: {
+        ...insertNotNull('max_age', maxAge),
+        ...insertNotNull('max_uses', maxUses),
+        ...insertNotNull('temporary', temporary),
+        ...insertNotNull('unique', unique),
+        ...insertNotNull('target_user', targetUser),
+        ...insertNotNull('target_user_type', targetUserType),
+      },
+    );
+  }
+
+  Future deletePermission(String channelId, String overwriteId) {
+    var endpoint = '/channels/$channelId/permissions/$overwriteId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future<FollowedChannel> followNewsChannel(
+    String channelId, {
+    required String webhookChannelId,
+  }) {
+    var endpoint = '/channels/$channelId/followers';
+    return _http.request(
+      endpoint,
+      converter: FollowedChannel.fromJson,
+      method: 'post',
+      body: {
+        'webhook_channel_id': webhookChannelId,
+      },
+    );
+  }
+
+  Future triggerTypingIndicator(String channelId) {
+    var endpoint = '/channels/$channelId/typing';
+    return _http.request(endpoint, converter: _http.asNull, method: 'post');
+  }
+
+  Future<List<Message>> getPinnedMessages(String channelId) {
+    var endpoint = '/channels/$channelId/pins';
+    return _http.request(endpoint,
+        converter: _http.listMapper(Message.fromJson));
+  }
+
+  Future addPinnedMessage(String channelId, String messageId) {
+    var endpoint = '/channels/$channelId/pins/$messageId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'put');
+  }
+
+  Future deletePinnedMessage(String channelId, String messageId) {
+    var endpoint = '/channels/$channelId/pins/$messageId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future groupDMAddRecipient(
+    String channelId, {
+    required String userId,
+    required String accessToken,
+    required String nick,
+  }) {
+    var endpoint = '/channels/$channelId/recipients/$userId';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'put',
+      body: {
+        'access_token': accessToken,
+        'nick': nick,
+      },
+    );
+  }
+
+  Future groupDMRemoveRecipient(String channelId, String userId) {
+    var endpoint = '/channels/$channelId/recipients/$userId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+}
+
+class EmojiAPI {
+  final DiscordHTTPClient _http;
+
+  EmojiAPI(this._http);
+
+  Future<List<Emoji>> listGuildEmojis(String guildId) {
+    var endpoint = '/guilds/$guildId/emojis';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Emoji.fromJson),
+    );
+  }
+
+  Future<Emoji> getGuildEmoji(String guildId, String emojiId) {
+    var endpoint = '/guilds/$guildId/emojis/$emojiId';
+    return _http.request(
+      endpoint,
+      converter: Emoji.fromJson,
+    );
+  }
+
+  Future<Emoji> createGuildEmoji(
+    String guildId, {
+    required String name,
+    required String image,
+    required List<String> roles,
+  }) {
+    var endpoint = '/guilds/$guildId/emojis';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Emoji.fromJson,
+      body: {
+        'name': name,
+        'image': image,
+        'roles': roles,
+      },
+    );
+  }
+
+  Future<Emoji> modifyGuildEmoji(
+    String guildId, {
+    required String emojiId,
+    required String name,
+    required List<String> roles,
+  }) {
+    var endpoint = '/guilds/$guildId/emojis/$emojiId';
+    return _http.request(
+      endpoint,
+      method: 'patch',
+      converter: Emoji.fromJson,
+      body: {
+        'name': name,
+        'roles': roles,
+      },
+    );
+  }
+
+  Future deleteGuildEmoji(String guildId, String emojiId) {
+    var endpoint = '/guilds/$guildId/emojis/$emojiId';
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: _http.asNull,
+    );
+  }
 }

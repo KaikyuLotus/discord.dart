@@ -23,14 +23,14 @@ class Sticker {
 
   static Sticker fromJson(Map<String, dynamic> json) {
     return Sticker(
-      id: json['id']!,
-      packId: json['pack_id']!,
-      name: json['name']!,
-      description: json['description']!,
+      id: json['id'],
+      packId: json['pack_id'],
+      name: json['name'],
+      description: json['description'],
       tags: json['tags'],
-      asset: json['asset']!,
+      asset: json['asset'],
       previewAsset: json['preview_asset'],
-      formatType: json['format_type']!,
+      formatType: json['format_type'],
     );
   }
 

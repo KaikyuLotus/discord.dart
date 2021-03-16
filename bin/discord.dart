@@ -20,18 +20,4 @@ void main(List<String> arguments) async {
 
   await client.run();
 
-  var messages = await client.channel.getMessages(
-    '805087651450978337',
-    limit: 1,
-  );
-  print(messages.length);
-
-  var message = messages[0];
-
-  var users = await client.channel.getReactions(
-    message.channelId,
-    messageId: message.id,
-    emoji: '❤',
-  );
-  print(users.first.username);
 }

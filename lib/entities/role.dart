@@ -26,14 +26,14 @@ class Role {
 
   static Role fromJson(Map<String, dynamic> json) {
     return Role(
-      id: json['id']!,
-      name: json['name']!,
-      color: json['color']!,
-      hoist: json['hoist']!,
-      position: json['position']!,
-      permissions: json['permissions']!,
-      managed: json['managed']!,
-      mentionable: json['mentionable']!,
+      id: json['id'],
+      name: json['name'],
+      color: json['color'],
+      hoist: json['hoist'],
+      position: json['position'],
+      permissions: json['permissions'],
+      managed: json['managed'],
+      mentionable: json['mentionable'],
       tags: ifNotNull(RoleTags.fromJson, json['tags']),
     );
   }

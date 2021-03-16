@@ -28,7 +28,7 @@ class Member {
       user: json['user'],
       nick: json['nick'],
       roles: List<String>.from(json['roles']!),
-      joinedAt: json['joined_at']!,
+      joinedAt: json['joined_at'],
       premiumSince: json['premium_since'],
       deaf: json['deaf'],
       mute: json['mute'],

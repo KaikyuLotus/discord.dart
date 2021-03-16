@@ -11,8 +11,8 @@ class EmbedField {
 
   static EmbedField fromJson(Map<String, dynamic> json) {
     return EmbedField(
-      name: json['name']!,
-      url: json['url']!,
+      name: json['name'],
+      url: json['url'],
       inline: json['icon_url'],
     );
   }

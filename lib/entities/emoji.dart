@@ -4,7 +4,7 @@ import 'package:discord/internal/internal.dart';
 class Emoji {
   final String? id;
   final String name;
-  final List<Role>? roles;
+  final List<String>? roles;
   final User? user;
   final bool? requireColons;
   final bool? managed;
@@ -25,9 +25,9 @@ class Emoji {
   static Emoji fromJson(Map<String, dynamic> json) {
     return Emoji(
       id: json['id'],
-      name: json['name']!,
-      roles: fromArray(Role.fromJson, json['roles']),
-      user: json['user'],
+      name: json['name'],
+      roles: List<String>.from(json['roles']),
+      user: ifNotNull(User.fromJson, json['user']),
       requireColons: json['require_colons'],
       managed: json['managed'],
       animated: json['animated'],

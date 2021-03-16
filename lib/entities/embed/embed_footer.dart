@@ -11,7 +11,7 @@ class EmbedFooter {
 
   static EmbedFooter fromJson(Map<String, dynamic> json) {
     return EmbedFooter(
-      text: json['text']!,
+      text: json['text'],
       iconUrl: json['icon_url'],
       proxyIconUrl: json['proxy_icon_url'],
     );

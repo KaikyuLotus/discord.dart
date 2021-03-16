@@ -15,7 +15,7 @@ class WelcomeScreen {
       description: json['description'],
       welcomeChannels: fromArray(
         WelcomeScreenChannel.fromJson,
-        json['welcome_channels']!,
+        json['welcome_channels'],
       )!,
     );
   }

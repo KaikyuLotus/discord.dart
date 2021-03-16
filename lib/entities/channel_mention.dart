@@ -15,10 +15,10 @@ class ChannelMention {
 
   static ChannelMention fromJson(Map<String, dynamic> json) {
     return ChannelMention(
-      id: json['id']!,
-      guildId: json['guild_id']!,
-      type: json['type']!,
-      name: json['name']!,
+      id: json['id'],
+      guildId: json['guild_id'],
+      type: json['type'],
+      name: json['name'],
     );
   }
 

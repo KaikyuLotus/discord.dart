@@ -14,9 +14,13 @@ class DiscordClient {
 
   late final DiscordHTTPClient http;
 
-  late final GuildsApi guilds = GuildsApi(http);
+  late final GuildsAPI guilds = GuildsAPI(http);
 
-  late final ChannelApi channel = ChannelApi(http);
+  late final ChannelAPI channel = ChannelAPI(http);
+
+  late final AuditLogAPI auditLog = AuditLogAPI(http);
+
+  late final EmojiAPI emoji = EmojiAPI(http);
 
   final String _token;
 
