@@ -11,6 +11,82 @@ class GuildsAPI {
     return _http.request(endpoint, converter: Guild.fromJson);
   }
 
+  Future<GuildPreview> getGuildPreview(String guildId) {
+    var endpoint = '/guilds/$guildId/preview';
+    return _http.request(endpoint, converter: GuildPreview.fromJson);
+  }
+
+  Future<Guild> modifyGuild(
+    String guildId, {
+    String? name,
+    String? region = '',
+    // TODO https://discord.com/developers/docs/resources/guild#guild-object-verification-level
+    int? verificationLevel = -1,
+    // TODO https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
+    int? defaultMessageNotifications = -1,
+    // TODO https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level
+    int? explicitContentFilter = -1,
+    String? afkChannelId = '',
+    int? afkTimeout,
+    String? icon = '',
+    String? ownerId,
+    String? splash = '',
+    String? banner = '',
+    String? systemChannelId = '',
+    String? rulesChannelId = '',
+    String? publicUpdatesChannelId = '',
+    String? preferredLocale = '',
+  }) {
+    var endpoint = '/guilds/$guildId';
+    return _http.request(
+      endpoint,
+      converter: Guild.fromJson,
+      method: 'patch',
+      body: {
+        ...insertNotNull('name', name),
+        ...insertNotNullDefault('region', region, ''),
+        ...insertNotNullDefault('verification_level', verificationLevel, -1),
+        ...insertNotNullDefault(
+          'default_message_notifications',
+          defaultMessageNotifications,
+          -1,
+        ),
+        ...insertNotNullDefault(
+          'explicit_content_filter',
+          explicitContentFilter,
+          -1,
+        ),
+        ...insertNotNullDefault('afk_channel_id', afkChannelId, ''),
+        ...insertNotNull('afk_timeout', afkTimeout),
+        ...insertNotNullDefault('icon', icon, ''),
+        ...insertNotNullDefault('owner_id', ownerId, ''),
+        ...insertNotNullDefault('splash', splash, ''),
+        ...insertNotNullDefault('banner', banner, ''),
+        ...insertNotNullDefault('system_channel_id', systemChannelId, ''),
+        ...insertNotNullDefault('rules_channel_id', rulesChannelId, ''),
+        ...insertNotNullDefault(
+          'public_updates_channel_id',
+          publicUpdatesChannelId,
+          '',
+        ),
+        ...insertNotNullDefault('preferred_locale', preferredLocale, ''),
+      },
+    );
+  }
+
+  Future delete(String guildId) {
+    var endpoint = '/guilds/$guildId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future<List<Channel>> getGuildChannels(String guildId) {
+    var endpoint = '/guilds/$guildId/channels';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Channel.fromJson),
+    );
+  }
+
   // TODO channel type enum https://discord.com/developers/docs/resources/channel#channel-object-channel-types
   Future<Channel> createChannel(
     String guildId, {
@@ -43,6 +119,87 @@ class GuildsAPI {
         'nsfw': nsfw,
       }..filterNullValues(),
     );
+  }
+
+  Future modifyChannelPositions(
+    String guildId, {
+    required Map<String, int?> positions,
+  }) {
+    var endpoint = '/guilds/$guildId/channels';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'patch',
+      body: positions.entries
+          .map((e) => {'id': e.key, 'position': e.value})
+          .toList(),
+    );
+  }
+
+  Future<Member> getGuildMember(String guildId, String userId) {
+    var endpoint = '/guilds/$guildId/members/$userId';
+    return _http.request(endpoint, converter: Member.fromJson);
+  }
+
+  Future<List<Member>> listGuildMembers(
+    String guildId, {
+    int? limit,
+    String? after,
+  }) {
+    var endpoint = '/guilds/$guildId/members';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Member.fromJson),
+      query: {
+        ...insertNotNull('limit', limit, str: true),
+        ...insertNotNull('after', after, str: true),
+      },
+    );
+  }
+
+  // TODO method https://discord.com/developers/docs/resources/guild#add-guild-member
+
+  Future<Member> modifyGuildMember(
+    String guildId,
+    String userId, {
+    String? nick = '',
+    List<String>? roles,
+    bool? mute,
+    bool? deaf,
+    String? channelId = '',
+  }) {
+    var endpoint = '/guilds/$guildId/members/$userId';
+    return _http.request(
+      endpoint,
+      converter: Member.fromJson,
+      method: 'patch',
+      body: {
+        ...insertNotNullDefault('nick', nick, ''),
+        ...insertNotNull('roles', roles),
+        ...insertNotNull('mute', mute),
+        ...insertNotNull('deaf', deaf),
+        ...insertNotNullDefault('channel_id', channelId, ''),
+      },
+    );
+  }
+
+  Future<String> modifyCurrentUserNick(String guildId, String? nick) {
+    var endpoint = '/guilds/$guildId/members/@me/nick';
+    return _http.request(
+      endpoint,
+      converter: (s) => s as String,
+      method: 'patch',
+      body: {'nick': nick},
+    );
+  }
+
+  Future addMemberRole(
+    String guildId, {
+    required String userId,
+    required String roleId,
+  }) {
+    var endpoint = '/guilds/$guildId/members/$userId/roles/$roleId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'put');
   }
 }
 
@@ -125,7 +282,7 @@ class ChannelAPI {
         'around': around,
         'before': before,
         'after': after,
-        'limit': '$limit',
+        'limit': limit == null ? null : '$limit',
       }..filterNullValues(),
     );
   }

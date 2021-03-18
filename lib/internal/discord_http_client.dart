@@ -31,7 +31,7 @@ class DiscordHTTPClient {
   Future<T> request<T>(
     String endpoint, {
     required T Function(Map<String, dynamic>) converter,
-    Map? body,
+    dynamic? body,
     Map<String, String?>? query,
     String method = 'get',
   }) async {

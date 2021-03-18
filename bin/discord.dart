@@ -11,6 +11,9 @@ Future onMessageCreate(DiscordClient client, Message message) async {
 }
 
 void main(List<String> arguments) async {
+
+  print([''] == ['']);
+
   var token = Platform.environment['BOT_TOKEN']!;
 
   var client = DiscordClient(token, intents: Intent.all);
@@ -19,5 +22,10 @@ void main(List<String> arguments) async {
   client.onMessageCreate = onMessageCreate;
 
   await client.run();
+
+  var members = await client.guilds.listGuildMembers('805087651450978334', limit: 100);
+  for (var member in members) {
+    print(member.user?.username);
+  }
 
 }

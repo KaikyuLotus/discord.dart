@@ -54,3 +54,4 @@ export 'account.dart';
 export 'integration.dart';
 export 'webhook.dart';
 export 'application.dart';
+export 'guild_preview.dart';

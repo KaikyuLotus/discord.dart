@@ -1,4 +1,5 @@
 import 'package:discord/discord.dart';
+import 'package:discord/internal/internal.dart';
 
 class Member {
   final User? user;
@@ -25,7 +26,7 @@ class Member {
 
   static Member fromJson(Map<String, dynamic> json) {
     return Member(
-      user: json['user'],
+      user: ifNotNull(User.fromJson, json['user']),
       nick: json['nick'],
       roles: List<String>.from(json['roles']!),
       joinedAt: json['joined_at'],

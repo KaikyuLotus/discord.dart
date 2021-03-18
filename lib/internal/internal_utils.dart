@@ -10,8 +10,12 @@ List<T>? fromArray<T>(
   return List.generate(jsonArr.length, (i) => foo(jsonArr[i]));
 }
 
-Map insertNotNull(String key, dynamic value) {
-  return value != null ? {key: value} : {};
+Map insertNotNull(String key, dynamic value, {bool str = false}) {
+  return value != null ? {key: str ? '$value' : value} : {};
+}
+
+Map insertNotNullDefault(String key, dynamic value, dynamic defaultVal) {
+  return value != null && value != defaultVal ? {key: value} : {};
 }
 
 extension MapExt on Map {
