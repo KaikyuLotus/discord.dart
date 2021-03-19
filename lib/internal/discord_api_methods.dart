@@ -44,32 +44,32 @@ class GuildsAPI {
       method: 'patch',
       body: {
         ...insertNotNull('name', name),
-        ...insertNotNullDefault('region', region, ''),
-        ...insertNotNullDefault('verification_level', verificationLevel, -1),
-        ...insertNotNullDefault(
+        ...insertNotDefault('region', region, ''),
+        ...insertNotDefault('verification_level', verificationLevel, -1),
+        ...insertNotDefault(
           'default_message_notifications',
           defaultMessageNotifications,
           -1,
         ),
-        ...insertNotNullDefault(
+        ...insertNotDefault(
           'explicit_content_filter',
           explicitContentFilter,
           -1,
         ),
-        ...insertNotNullDefault('afk_channel_id', afkChannelId, ''),
+        ...insertNotDefault('afk_channel_id', afkChannelId, ''),
         ...insertNotNull('afk_timeout', afkTimeout),
-        ...insertNotNullDefault('icon', icon, ''),
-        ...insertNotNullDefault('owner_id', ownerId, ''),
-        ...insertNotNullDefault('splash', splash, ''),
-        ...insertNotNullDefault('banner', banner, ''),
-        ...insertNotNullDefault('system_channel_id', systemChannelId, ''),
-        ...insertNotNullDefault('rules_channel_id', rulesChannelId, ''),
-        ...insertNotNullDefault(
+        ...insertNotDefault('icon', icon, ''),
+        ...insertNotDefault('owner_id', ownerId, ''),
+        ...insertNotDefault('splash', splash, ''),
+        ...insertNotDefault('banner', banner, ''),
+        ...insertNotDefault('system_channel_id', systemChannelId, ''),
+        ...insertNotDefault('rules_channel_id', rulesChannelId, ''),
+        ...insertNotDefault(
           'public_updates_channel_id',
           publicUpdatesChannelId,
           '',
         ),
-        ...insertNotNullDefault('preferred_locale', preferredLocale, ''),
+        ...insertNotDefault('preferred_locale', preferredLocale, ''),
       },
     );
   }
@@ -174,11 +174,11 @@ class GuildsAPI {
       converter: Member.fromJson,
       method: 'patch',
       body: {
-        ...insertNotNullDefault('nick', nick, ''),
+        ...insertNotDefault('nick', nick, ''),
         ...insertNotNull('roles', roles),
         ...insertNotNull('mute', mute),
         ...insertNotNull('deaf', deaf),
-        ...insertNotNullDefault('channel_id', channelId, ''),
+        ...insertNotDefault('channel_id', channelId, ''),
       },
     );
   }
@@ -200,6 +200,286 @@ class GuildsAPI {
   }) {
     var endpoint = '/guilds/$guildId/members/$userId/roles/$roleId';
     return _http.request(endpoint, converter: _http.asNull, method: 'put');
+  }
+
+  Future removeMemberRole(
+    String guildId, {
+    required String userId,
+    required String roleId,
+  }) {
+    var endpoint = '/guilds/$guildId/members/$userId/roles/$roleId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future removeMember(String guildId, String userId) {
+    var endpoint = '/guilds/$guildId/members/$userId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future getBans(String guildId) {
+    var endpoint = '/guilds/$guildId/bans';
+    return _http.request(endpoint, converter: _http.listMapper(Ban.fromJson));
+  }
+
+  Future<Ban> getBan(String guildId, String userId) {
+    var endpoint = '/guilds/$guildId/bans/$userId';
+    return _http.request(endpoint, converter: Ban.fromJson);
+  }
+
+  Future createBan(
+    String guildId,
+    String userId, {
+    int? deleteMessageDays,
+    String? reason,
+  }) {
+    var endpoint = '/guilds/$guildId/bans/$userId';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'put',
+      body: {
+        ...insertNotNull('delete_message_days', deleteMessageDays),
+        ...insertNotNull('reason', reason)
+      },
+    );
+  }
+
+  Future removeBan(String guildId, String userId) {
+    var endpoint = '/guilds/$guildId/bans/$userId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future<List<Role>> getRoles(String guildId) {
+    var endpoint = '/guilds/$guildId/roles';
+    return _http.request(endpoint, converter: _http.listMapper(Role.fromJson));
+  }
+
+  Future<Role> createRole(
+    String guildId, {
+    String? name,
+    String? permissions,
+    int? color,
+    bool? hoist,
+    bool? mentionable,
+  }) {
+    var endpoint = '/guilds/$guildId/roles';
+    return _http.request(
+      endpoint,
+      converter: Role.fromJson,
+      method: 'post',
+      body: {
+        ...insertNotNull('name', name),
+        ...insertNotNull('permissions', permissions),
+        ...insertNotNull('color', color),
+        ...insertNotNull('hoist', hoist),
+        ...insertNotNull('mentionable', mentionable),
+      },
+    );
+  }
+
+  Future<List<Role>> modifyRolePositions(
+    String guildId,
+    Map<String, int> positions,
+  ) {
+    var endpoint = '/guilds/$guildId/roles';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Role.fromJson),
+      method: 'patch',
+      body: positions.entries
+          .map((e) => {'id': e.key, 'position': e.value})
+          .toList(),
+    );
+  }
+
+  // TODO ugly
+  Future<Role> modifyRole(
+    String guildId,
+    String roleId, {
+    String? name = '',
+    String? permissions = '',
+    int? color = -1,
+    bool? hoist,
+    bool? mentionable,
+  }) {
+    var endpoint = '/guilds/$guildId/roles/$roleId';
+    return _http.request(
+      endpoint,
+      converter: Role.fromJson,
+      method: 'patch',
+      body: {
+        ...insertNotDefault('name', name, ''),
+        ...insertNotDefault('permissions', permissions, ''),
+        ...insertNotDefault('color', color, -1, str: true),
+        ...insertNotNull('hoist', hoist),
+        ...insertNotNull('mentionable', mentionable),
+      },
+    );
+  }
+
+  Future deleteRole(String guildId, String roleId) {
+    var endpoint = '/guilds/$guildId/roles/$roleId';
+    return _http.request(endpoint, converter: _http.asNull, method: 'delete');
+  }
+
+  Future<int> getPruneCount(
+    String guildId, {
+    int? days,
+    List<String>? includeRoles,
+  }) {
+    var endpoint = '/guilds/$guildId/prune';
+    return _http.request(
+      endpoint,
+      converter: (j) => j['pruned'],
+      query: {
+        ...insertNotNull('days', days, str: true),
+        ...insertNotNull('include_roles', includeRoles?.join(';')),
+      },
+    );
+  }
+
+  Future<int?> beginPrune(
+    String guildId, {
+    int? days,
+    List<String>? includeRoles,
+    bool? computePruneCount,
+  }) {
+    var endpoint = '/guilds/$guildId/prune';
+    return _http.request(
+      endpoint,
+      converter: (j) => j['pruned'],
+      method: 'post',
+      query: {
+        ...insertNotNull('days', days, str: true),
+        ...insertNotNull('compute_prune_count', computePruneCount, str: true),
+        ...insertNotNull('include_roles', includeRoles?.join(';')),
+      },
+    );
+  }
+
+  Future<List<VoiceRegion>> getVoiceRegions(String guildId) {
+    var endpoint = '/guilds/$guildId/regions';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(VoiceRegion.fromJson),
+    );
+  }
+
+  // TODO entity from https://discord.com/developers/docs/resources/invite#invite-metadata-object
+  Future<List<InviteMetadata>> getInvites(String guildId) {
+    var endpoint = '/guilds/$guildId/invites';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(InviteMetadata.fromJson),
+    );
+  }
+
+  Future<List<Integration>> getIntegrations(String guildId) {
+    var endpoint = '/guilds/$guildId/integrations';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Integration.fromJson),
+    );
+  }
+
+  Future createIntegration(
+    String guildId, {
+    required String type,
+    required String id,
+  }) {
+    var endpoint = '/guilds/$guildId/integrations';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: _http.listMapper(Integration.fromJson),
+      body: {
+        'type': type,
+        'id': id,
+      },
+    );
+  }
+
+  Future modifyIntegration(
+    String guildId, {
+    required String integrationId,
+    String? expireBehavior = '',
+    String? expireGracePeriod = '',
+    String? enableEmoticons = '',
+  }) {
+    var endpoint = '/guilds/$guildId/integrations/$integrationId';
+    return _http.request(
+      endpoint,
+      method: 'patch',
+      converter: _http.listMapper(Integration.fromJson),
+      body: {
+        ...insertNotDefault('expire_behavior', expireBehavior, ''),
+        ...insertNotDefault('expire_grace_period', expireGracePeriod, ''),
+        ...insertNotDefault('enable_emoticons', enableEmoticons, ''),
+      },
+    );
+  }
+
+  Future deleteIntegration(String guildId, String integrationId) {
+    var endpoint = '/guilds/$guildId/integrations/$integrationId';
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: _http.asNull,
+    );
+  }
+
+  Future syncIntegration(String guildId, String integrationId) {
+    var endpoint = '/guilds/$guildId/integrations/$integrationId/sync';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: _http.asNull,
+    );
+  }
+
+  Future<GuildWidget> getWidgetSettings(String guildId) {
+    var endpoint = '/guilds/$guildId/widget';
+    return _http.request(
+      endpoint,
+      converter: GuildWidget.fromJson,
+    );
+  }
+
+  Future<GuildWidget> modifyWidget(String guildId, GuildWidget widget) {
+    var endpoint = '/guilds/$guildId/widget';
+    return _http.request(
+      endpoint,
+      method: 'patch',
+      converter: GuildWidget.fromJson,
+      body: widget.toJson(),
+    );
+  }
+
+  Future<Map<String, dynamic>> getWidget(String guildId) {
+    var endpoint = '/guilds/$guildId/widget.json';
+    return _http.request(
+      endpoint,
+      converter: (j) => j,
+    );
+  }
+
+  Future<PartialInvite> getVanityUrl(String guildId) {
+    var endpoint = '/guilds/$guildId/vanity-url';
+    return _http.request(
+      endpoint,
+      converter: PartialInvite.fromJson,
+    );
+  }
+
+  // TODO Enum from Widget Style Options
+  // TODO check output
+  Future<String> getWidgetImage(String guildId, String style) {
+    var endpoint = '/guilds/$guildId/widget.png';
+    return _http.request(
+      endpoint,
+      converter: (j) => j as String,
+      query: {'style': style},
+    );
   }
 }
 

@@ -55,3 +55,8 @@ export 'integration.dart';
 export 'webhook.dart';
 export 'application.dart';
 export 'guild_preview.dart';
+export 'ban.dart';
+export 'voice_region.dart';
+export 'invite_metadata.dart';
+export 'guild_widget.dart';
+export 'partial_invite.dart';

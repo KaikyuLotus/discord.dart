@@ -14,8 +14,15 @@ Map insertNotNull(String key, dynamic value, {bool str = false}) {
   return value != null ? {key: str ? '$value' : value} : {};
 }
 
-Map insertNotNullDefault(String key, dynamic value, dynamic defaultVal) {
-  return value != null && value != defaultVal ? {key: value} : {};
+Map insertNotDefault(
+  String key,
+  dynamic value,
+  dynamic defaultVal, {
+  bool str = false,
+}) {
+  return value != defaultVal
+      ? {key: (str && value != null) ? '$value' : value}
+      : {};
 }
 
 extension MapExt on Map {
