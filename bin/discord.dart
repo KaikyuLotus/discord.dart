@@ -12,8 +12,6 @@ Future onMessageCreate(DiscordClient client, Message message) async {
 
 void main(List<String> arguments) async {
 
-  print([''] == ['']);
-
   var token = Platform.environment['BOT_TOKEN']!;
 
   var client = DiscordClient(token, intents: Intent.all);

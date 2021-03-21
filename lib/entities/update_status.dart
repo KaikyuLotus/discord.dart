@@ -16,7 +16,7 @@ class UpdateStatus {
 
   static UpdateStatus fromJson(Map<String, dynamic> json) {
     return UpdateStatus(
-      status: UserStatus.fromString(json['status']),
+      status: UserStatus.forValue(json['status']),
       activities: fromArray(Activity.fromJson, json['activities']),
       since: json['since'],
       afk: json['afk'],

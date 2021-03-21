@@ -3,7 +3,7 @@ class ConnectionProperties {
   final String browser;
   final String device;
 
-  ConnectionProperties({
+  const ConnectionProperties({
     required this.os,
     required this.browser,
     required this.device,

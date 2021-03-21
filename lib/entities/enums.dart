@@ -1,106 +1,97 @@
-class UserStatus {
-  final String _status;
+class Enum<T> {
+  final T _value;
 
-  static final UserStatus online = UserStatus._('online');
-  static final UserStatus dnd = UserStatus._('dnd');
-  static final UserStatus idle = UserStatus._('idle');
-  static final UserStatus invisible = UserStatus._('invisible');
-  static final UserStatus offline = UserStatus._('offline');
+  T get value => _value;
 
-  UserStatus._(this._status);
-
-  static UserStatus fromString(String status) {
-    return UserStatus._(status);
-  }
+  const Enum(this._value);
 
   @override
-  String toString() {
-    return _status;
-  }
+  String toString() => '$_value';
 
-  String toJson() {
-    return '$this';
-  }
+  String toJson() => '$this';
 }
 
-class UserActivityType {
-  final int _type;
+class UserStatus extends Enum<String> {
+  static const UserStatus online = UserStatus._('online');
+  static const UserStatus dnd = UserStatus._('dnd');
+  static const UserStatus idle = UserStatus._('idle');
+  static const UserStatus invisible = UserStatus._('invisible');
+  static const UserStatus offline = UserStatus._('offline');
 
-  static final UserActivityType game = UserActivityType._(0);
-  static final UserActivityType streaming = UserActivityType._(1);
-  static final UserActivityType listening = UserActivityType._(2);
-  static final UserActivityType custom = UserActivityType._(3);
-  static final UserActivityType competing = UserActivityType._(4);
+  static const Map<String, UserStatus> values = {
+    'online': online,
+    'dnd': dnd,
+    'idle': idle,
+    'invisible': invisible,
+    'offline': offline,
+  };
 
-  UserActivityType._(this._type);
+  const UserStatus._(String value) : super(value);
 
-  static UserActivityType fromInt(int type) {
-    return UserActivityType._(type);
-  }
-
-  @override
-  String toString() {
-    return '$_type';
-  }
-
-  String toJson() {
-    return '$this';
-  }
+  static UserStatus forValue(String value) => UserStatus.values[value]!;
 }
 
-class Intent {
-  final int value;
+class UserActivityType extends Enum<int> {
+  static const UserActivityType game = UserActivityType._(0);
+  static const UserActivityType streaming = UserActivityType._(1);
+  static const UserActivityType listening = UserActivityType._(2);
+  static const UserActivityType custom = UserActivityType._(3);
+  static const UserActivityType competing = UserActivityType._(4);
 
-  static List<Intent> get none => [];
+  static const values = {
+    'game': game,
+    'streaming': streaming,
+    'listening': listening,
+    'custom': custom,
+    'competing': competing,
+  };
 
-  static List<Intent> get all {
-    return [
-      guilds,
-      guildMembers,
-      guildBans,
-      guildEmojis,
-      guildIntegrations,
-      guildWebhooks,
-      guildInvites,
-      guildVoiceStates,
-      guildPresences,
-      guildMessages,
-      guildMessageReaction,
-      guildMessageTyping,
-      directMessages,
-      directMessagesReactions,
-      directMessagesTyping,
-    ];
-  }
+  const UserActivityType._(int value) : super(value);
 
-  static final Intent guilds = Intent._(0);
-  static final Intent guildMembers = Intent._(1);
-  static final Intent guildBans = Intent._(2);
-  static final Intent guildEmojis = Intent._(3);
-  static final Intent guildIntegrations = Intent._(4);
-  static final Intent guildWebhooks = Intent._(5);
-  static final Intent guildInvites = Intent._(6);
-  static final Intent guildVoiceStates = Intent._(7);
-  static final Intent guildPresences = Intent._(8);
-  static final Intent guildMessages = Intent._(9);
-  static final Intent guildMessageReaction = Intent._(10);
-  static final Intent guildMessageTyping = Intent._(11);
-  static final Intent directMessages = Intent._(12);
-  static final Intent directMessagesReactions = Intent._(13);
-  static final Intent directMessagesTyping = Intent._(14);
+  static UserActivityType forValue(int value) =>
+      UserActivityType.values[value]!;
+}
 
-  Intent._(this.value);
+class Intent extends Enum<int> {
+  static List<Intent> get none => const [];
 
-  static Intent fromInt(int value) {
-    return Intent._(value);
-  }
+  static List<Intent> get all => values.values.toList();
 
-  @override
-  String toString() {
-    return '$value';
-  }
+  static const values = {
+    0: guilds,
+    1: guildMembers,
+    2: guildBans,
+    3: guildEmojis,
+    4: guildIntegrations,
+    5: guildWebhooks,
+    6: guildInvites,
+    7: guildVoiceStates,
+    8: guildPresences,
+    9: guildMessages,
+    10: guildMessageReaction,
+    11: guildMessageTyping,
+    12: directMessages,
+    13: directMessagesReactions,
+    14: directMessagesTyping,
+  };
 
-  String toJson() {
-    return '$this';
-  }
+  static const Intent guilds = Intent._(0);
+  static const Intent guildMembers = Intent._(1);
+  static const Intent guildBans = Intent._(2);
+  static const Intent guildEmojis = Intent._(3);
+  static const Intent guildIntegrations = Intent._(4);
+  static const Intent guildWebhooks = Intent._(5);
+  static const Intent guildInvites = Intent._(6);
+  static const Intent guildVoiceStates = Intent._(7);
+  static const Intent guildPresences = Intent._(8);
+  static const Intent guildMessages = Intent._(9);
+  static const Intent guildMessageReaction = Intent._(10);
+  static const Intent guildMessageTyping = Intent._(11);
+  static const Intent directMessages = Intent._(12);
+  static const Intent directMessagesReactions = Intent._(13);
+  static const Intent directMessagesTyping = Intent._(14);
+
+  const Intent._(int value) : super(value);
+
+  static Intent forValue(int value) => Intent.values[value]!;
 }

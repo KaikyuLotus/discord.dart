@@ -8,23 +8,30 @@ import 'package:discord/internal/internal.dart';
 class DiscordClient {
   static final int _apiVersion = 8;
 
-  late final Map<int, Function(dynamic)> handlers;
+  late final guilds = GuildsAPI(http);
 
-  late final WebSocket _ws;
+  late final auditLog = AuditLogAPI(http);
 
-  late final DiscordHTTPClient http;
+  late final channel = ChannelAPI(http);
 
-  late final GuildsAPI guilds = GuildsAPI(http);
+  late final emoji = EmojiAPI(http);
 
-  late final ChannelAPI channel = ChannelAPI(http);
+  late final invite = InviteAPI(http);
 
-  late final AuditLogAPI auditLog = AuditLogAPI(http);
+  late final template = TemplateAPI(http);
 
-  late final EmojiAPI emoji = EmojiAPI(http);
+  late final user = UserAPI(http);
 
-  final String _token;
+  late final voice = VoiceAPI(http);
 
-  final List<Intent> intents;
+  late final webhook = WebhookAPI(http);
+
+  late final Map<int, Function(dynamic)> handlers = {
+    0: _onGatewayEvent,
+    9: _onInvalidSession,
+    10: _onHello,
+    11: (e) {},
+  };
 
   // Event handlers
   Future Function(DiscordClient client, dynamic event)? onReady;
@@ -33,17 +40,35 @@ class DiscordClient {
 
   Future Function(DiscordClient client, String type, dynamic event)? onEvent;
 
+  late final WebSocket _ws;
+
+  late final DiscordHTTPClient http;
+
+  final ConnectionProperties connectionProperties;
+
+  final int largeThreshold;
+
+  final List<int> numShards;
+
+  final bool guildSubscriptions;
+
+  final String _token;
+
+  final List<Intent> intents;
+
   DiscordClient(
     this._token, {
     required this.intents,
+    this.connectionProperties = const ConnectionProperties(
+      os: 'Dart',
+      browser: 'Unspecified',
+      device: 'Unspecified',
+    ),
+    this.largeThreshold = 250,
+    this.numShards = const [0, 1],
+    this.guildSubscriptions = false,
   }) {
     http = DiscordHTTPClient(_token);
-    handlers = {
-      0: _onGatewayEvent,
-      9: _onInvalidSession,
-      10: _onHello,
-      11: (e) {},
-    };
   }
 
   Future run() async {
@@ -53,20 +78,7 @@ class DiscordClient {
     );
     print('Listening WebSocket...');
     _ws.listen(_onWebSocketEvent).onError(_onWebSocketError);
-    _ws.handleError((err) {
-      print(err);
-    });
-  }
-
-  // TODO handle oauth2 for users
-  static DiscordClient fromToken(
-    String token, {
-    required List<Intent> intents,
-  }) {
-    return DiscordClient(
-      token,
-      intents: intents,
-    );
+    _ws.handleError(print);
   }
 
   Future _send(Rpcable data) async {
@@ -112,14 +124,10 @@ class DiscordClient {
     _send(Identify(
       token: _token,
       intents: intents,
-      properties: ConnectionProperties(
-        os: 'linux',
-        browser: 'disco',
-        device: 'disco',
-      ),
-      largeThreshold: 250,
-      guildSubscriptions: false,
-      shard: [0, 1],
+      properties: connectionProperties,
+      largeThreshold: largeThreshold,
+      guildSubscriptions: guildSubscriptions,
+      shard: numShards,
     ));
   }
 

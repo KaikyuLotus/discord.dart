@@ -37,7 +37,7 @@ class Activity {
   static Activity fromJson(Map<String, dynamic> json) {
     return Activity(
       name: json['name'],
-      type: UserActivityType.fromInt(json['type']),
+      type: UserActivityType.forValue(json['type']),
       url: json['url'],
       createdAt: json['createdAt'],
       timestamps: ifNotNull(Timestamp.fromJson, json['timestamps']),
