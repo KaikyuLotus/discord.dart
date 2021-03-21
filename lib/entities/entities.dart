@@ -60,3 +60,5 @@ export 'voice_region.dart';
 export 'invite_metadata.dart';
 export 'guild_widget.dart';
 export 'partial_invite.dart';
+export 'template.dart';
+export 'connection.dart';

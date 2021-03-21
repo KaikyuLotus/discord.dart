@@ -4,7 +4,7 @@ import 'package:discord/internal/internal.dart';
 class GuildsAPI {
   final DiscordHTTPClient _http;
 
-  GuildsAPI(this._http);
+  const GuildsAPI(this._http);
 
   Future<Guild> get(String guildId, {bool withCounts = false}) {
     var endpoint = '/guilds/$guildId';
@@ -486,7 +486,7 @@ class GuildsAPI {
 class AuditLogAPI {
   final DiscordHTTPClient _http;
 
-  AuditLogAPI(this._http);
+  const AuditLogAPI(this._http);
 
   Future<AuditLogs> getGuildAuditLog(String guildId) {
     var endpoint = '/guilds/$guildId/audit-logs';
@@ -497,7 +497,7 @@ class AuditLogAPI {
 class ChannelAPI {
   final DiscordHTTPClient _http;
 
-  ChannelAPI(this._http);
+  const ChannelAPI(this._http);
 
   Future<Channel> get(String channelId) {
     var endpoint = '/channels/$channelId';
@@ -813,7 +813,7 @@ class ChannelAPI {
 class EmojiAPI {
   final DiscordHTTPClient _http;
 
-  EmojiAPI(this._http);
+  const EmojiAPI(this._http);
 
   Future<List<Emoji>> listGuildEmojis(String guildId) {
     var endpoint = '/guilds/$guildId/emojis';
@@ -875,5 +875,395 @@ class EmojiAPI {
       method: 'delete',
       converter: _http.asNull,
     );
+  }
+}
+
+class InviteAPI {
+  final DiscordHTTPClient _http;
+
+  const InviteAPI(this._http);
+
+  Future<Invite> getInvite(String inviteCode, {int? withCounts}) {
+    var endpoint = '/invites/$inviteCode';
+    return _http.request(
+      endpoint,
+      converter: Invite.fromJson,
+      query: {
+        ...insertNotNull('with_counts', withCounts),
+      },
+    );
+  }
+
+  Future<Invite> deleteInvite(String inviteCode) {
+    var endpoint = '/invites/$inviteCode';
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: Invite.fromJson,
+    );
+  }
+}
+
+class TemplateAPI {
+  final DiscordHTTPClient _http;
+
+  const TemplateAPI(this._http);
+
+  Future<Template> getTemplate(String templateCode) {
+    var endpoint = '/guilds/templates/$templateCode';
+    return _http.request(endpoint, converter: Template.fromJson);
+  }
+
+  Future<Guild> createGuildFromTemplate(
+    String templateCode, {
+    required String name,
+    String? icon,
+  }) {
+    var endpoint = '/guilds/templates/$templateCode';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Guild.fromJson,
+      body: {
+        'name': name,
+        ...insertNotNull('icon', icon),
+      },
+    );
+  }
+
+  Future<List<Template>> getTemplates(String guildId) {
+    var endpoint = '/guilds/$guildId/templates';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Template.fromJson),
+    );
+  }
+
+  Future<Template> createTemplate(
+    String guildId, {
+    required String name,
+    String? description = '',
+  }) {
+    var endpoint = '/guilds/$guildId/templates';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Template.fromJson,
+      body: {
+        'name': name,
+        ...insertNotDefault('description', description, ''),
+      },
+    );
+  }
+
+  Future<Template> syncTemplate(String guildId, String templateCode) {
+    var endpoint = '/guilds/$guildId/templates/$templateCode';
+    return _http.request(
+      endpoint,
+      method: 'put',
+      converter: Template.fromJson,
+    );
+  }
+
+  Future<Template> modifyTemplate(
+    String guildId,
+    String templateCode, {
+    String? name,
+    String? description = '',
+  }) {
+    var endpoint = '/guilds/$guildId/templates/$templateCode';
+    return _http.request(
+      endpoint,
+      method: 'patch',
+      converter: Template.fromJson,
+      body: {
+        ...insertNotNull('name', name),
+        ...insertNotDefault('description', description, ''),
+      },
+    );
+  }
+
+  Future<Template> deleteTemplate(String guildId, String templateCode) {
+    var endpoint = '/guilds/$guildId/templates/$templateCode';
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: Template.fromJson,
+    );
+  }
+}
+
+class UserAPI {
+  final DiscordHTTPClient _http;
+
+  const UserAPI(this._http);
+
+  Future<User> getCurrentUser() {
+    var endpoint = '/users/@me';
+    return _http.request(endpoint, converter: User.fromJson);
+  }
+
+  Future<User> modifyCurrentUser({
+    String? username,
+    String? avatar = '',
+  }) {
+    var endpoint = '/users/@me';
+    return _http.request(
+      endpoint,
+      method: 'patch',
+      converter: User.fromJson,
+      body: {
+        ...insertNotNull('username', username),
+        ...insertNotDefault('avatar', avatar, ''),
+      },
+    );
+  }
+
+  Future<List<Guild>> getCurrentUserGuilds({
+    String? before,
+    String? after,
+    int? limit,
+  }) {
+    var endpoint = '/users/@me/guilds';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Guild.fromJson),
+      query: {
+        ...insertNotNull('before', before),
+        ...insertNotNull('after', after),
+        ...insertNotNull('limit', limit),
+      },
+    );
+  }
+
+  Future leaveGuild(String guildId) {
+    var endpoint = '/users/@me/guilds/$guildId';
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: _http.asNull,
+    );
+  }
+
+  /// Returns empty array for bots
+  Future<List<Channel>> getUserDMs() {
+    var endpoint = '/users/@me/channels';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Channel.fromJson),
+    );
+  }
+
+  Future<Channel> createDM(String recipientId) {
+    var endpoint = '/users/@me/channels';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Channel.fromJson,
+      body: {'recipient_id': recipientId},
+    );
+  }
+
+  @deprecated
+  Future<Channel> createGroupDM(
+    List<String> accessTokens,
+    Map<String, String> nicks,
+  ) {
+    var endpoint = '/users/@me/channels';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Channel.fromJson,
+      body: {
+        'access_tokens': accessTokens,
+        'nicks': nicks,
+      },
+    );
+  }
+
+  Future<List<Connection>> getUserConnections() {
+    var endpoint = '/users/@me/channels';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Connection.fromJson),
+    );
+  }
+}
+
+class VoiceAPI {
+  final DiscordHTTPClient _http;
+
+  const VoiceAPI(this._http);
+
+  Future<List<VoiceRegion>> listVoiceRegions() {
+    var endpoint = '/voice/regions';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(VoiceRegion.fromJson),
+    );
+  }
+}
+
+class WebhookAPI {
+  final DiscordHTTPClient _http;
+
+  const WebhookAPI(this._http);
+
+  Future<Webhook> createWebhook(
+    String channelId, {
+    required String name,
+    String? imageData,
+  }) {
+    var endpoint = '/channels/$channelId/webhooks';
+    return _http.request(
+      endpoint,
+      method: 'post',
+      converter: Webhook.fromJson,
+      body: {
+        'name': name,
+        'image_data': imageData,
+      },
+    );
+  }
+
+  Future<List<Webhook>> getChannelWebhooks(String channelId) {
+    var endpoint = '/channels/$channelId/webhooks';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Webhook.fromJson),
+    );
+  }
+
+  Future<List<Webhook>> getGuildWebhooks(String guildId) {
+    var endpoint = '/channels/$guildId/webhooks';
+    return _http.request(
+      endpoint,
+      converter: _http.listMapper(Webhook.fromJson),
+    );
+  }
+
+  Future<Webhook> getWebhook(String webhookId, {String? webhookToken}) {
+    var endpoint = '/webhooks/$webhookId';
+    if (webhookToken != null) {
+      endpoint += '/$webhookToken';
+    }
+    return _http.request(endpoint, converter: Webhook.fromJson);
+  }
+
+  Future<Webhook> modifyWebhook(
+    String webhookId, {
+    String? name,
+    String? avatar = '',
+    String? channelId,
+  }) {
+    var endpoint = '/webhooks/$webhookId';
+    return _http.request(
+      endpoint,
+      converter: Webhook.fromJson,
+      method: 'patch',
+      body: {
+        ...insertNotNull('name', name),
+        ...insertNotDefault('avatar', avatar, ''),
+        ...insertNotNull('channel_id', channelId),
+      },
+    );
+  }
+
+  Future<Webhook> modifyWebhookWithToken(
+    String webhookId, {
+    required String webhookToken,
+    String? name,
+    String? avatar = '',
+  }) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken';
+    return _http.request(
+      endpoint,
+      converter: Webhook.fromJson,
+      method: 'patch',
+      body: {
+        ...insertNotNull('name', name),
+        ...insertNotDefault('avatar', avatar, ''),
+      },
+    );
+  }
+
+  Future deleteWebhook(String webhookId, {String? webhookToken}) {
+    var endpoint = '/webhooks/$webhookId';
+    if (webhookToken != null) {
+      endpoint += '/$webhookToken';
+    }
+    return _http.request(
+      endpoint,
+      method: 'delete',
+      converter: _http.asNull,
+    );
+  }
+
+  Future executeWebhook(String webhookId, String webhookToken) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken';
+    throw UnsupportedError('Execute Webhook not implemented'); // TODO impl
+  }
+
+  Future<Webhook> executeSlackCompatibleWebhook(
+    String webhookId,
+    String webhookToken, {
+    bool? wait,
+  }) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken/slack';
+    return _http.request(
+      endpoint,
+      converter: Webhook.fromJson,
+      method: 'post',
+      query: {
+        ...insertNotNull('wait', wait, str: true),
+      },
+    );
+  }
+
+  Future<Webhook> executeGithubCompatibleWebhook(
+    String webhookId,
+    String webhookToken, {
+    bool? wait,
+  }) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken/github';
+    return _http.request(
+      endpoint,
+      converter: Webhook.fromJson,
+      method: 'post',
+      query: {
+        ...insertNotNull('wait', wait, str: true),
+      },
+    );
+  }
+
+  Future<Message> editWebhookMessage(
+    String webhookId, {
+    required String webhookToken,
+    required String messageId,
+    String? content = '',
+    List<Embed>? embeds = const [],
+    AllowedMentions? allowedMentions,
+  }) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken/messages/$messageId';
+    return _http.request(
+      endpoint,
+      converter: Message.fromJson,
+      method: 'patch',
+      query: {
+        ...insertNotDefault('content', content, ''),
+        ...insertNotDefault('content', content, const []),
+        // TODO user cannot pass null value in the request
+        ...insertNotNull('allowed_mentions', allowedMentions),
+      },
+    );
+  }
+
+  Future deleteWebhookMessage(
+    String webhookId, {
+    required String webhookToken,
+    required String messageId,
+  }) {
+    var endpoint = '/webhooks/$webhookId/$webhookToken/messages/$messageId';
+    return _http.request(endpoint, method: 'delete', converter: _http.asNull);
   }
 }
