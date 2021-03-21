@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:discord/discord.dart';
+import 'package:discord/entities.dart';
 
 Future onReady(DiscordClient client, dynamic event) async {
   print('Ready!');
@@ -11,7 +12,6 @@ Future onMessageCreate(DiscordClient client, Message message) async {
 }
 
 void main(List<String> arguments) async {
-
   var token = Platform.environment['BOT_TOKEN']!;
 
   var client = DiscordClient(token, intents: Intent.all);
@@ -21,9 +21,11 @@ void main(List<String> arguments) async {
 
   await client.run();
 
-  var members = await client.guilds.listGuildMembers('805087651450978334', limit: 100);
+  var members = await client.guilds.listGuildMembers(
+    '805087651450978334',
+    limit: 100,
+  );
   for (var member in members) {
     print(member.user?.username);
   }
-
 }
