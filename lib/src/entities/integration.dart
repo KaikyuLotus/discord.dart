@@ -19,7 +19,7 @@ class Integration {
   final String? syncedAt;
   final int? subscriberCount;
   final bool? revoked;
-  final Application? application;
+  final IntegrationApplication? application;
 
   Integration({
     required this.id,
@@ -55,7 +55,7 @@ class Integration {
       syncedAt: json['synced_at'],
       subscriberCount: json['subscriber_count'],
       revoked: json['revoked'],
-      application: Application.fromJson(json['application']),
+      application: IntegrationApplication.fromJson(json['application']),
     );
   }
 

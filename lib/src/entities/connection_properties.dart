@@ -6,9 +6,9 @@ class ConnectionProperties {
   final String device;
 
   const ConnectionProperties({
-    required this.os,
-    required this.browser,
-    required this.device,
+    this.os = 'Dart',
+    this.browser = 'Unspecified',
+    this.device = 'Unspecified',
   });
 
   Map toJson() {

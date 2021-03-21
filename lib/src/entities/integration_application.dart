@@ -3,7 +3,7 @@ library entities;
 import '../../entities.dart';
 import '../internal.dart';
 
-class Application {
+class IntegrationApplication {
   final String id;
   final String name;
   final String? icon;
@@ -11,7 +11,7 @@ class Application {
   final String summary;
   final User? bot;
 
-  Application({
+  IntegrationApplication({
     required this.id,
     required this.name,
     this.icon,
@@ -20,8 +20,8 @@ class Application {
     this.bot,
   });
 
-  static Application fromJson(Map<String, dynamic> json) {
-    return Application(
+  static IntegrationApplication fromJson(Map<String, dynamic> json) {
+    return IntegrationApplication(
       id: json['id'],
       name: json['name'],
       icon: json['icon'],

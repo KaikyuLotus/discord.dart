@@ -9,6 +9,7 @@ class DiscordHTTPClient {
 
   static final _name = 'discord.dart';
 
+  // TODO merge with version in DiscordClient
   static final _apiVersion = '8';
 
   static final _baseUrl = 'https://discord.com/api/v$_apiVersion';
@@ -24,7 +25,7 @@ class DiscordHTTPClient {
   List<T> Function(Map<String, dynamic>) listMapper<T>(
     T Function(Map<String, dynamic>) mapper,
   ) {
-    return (Map<String, dynamic> arrObj) => fromArray(mapper, arrObj['arr'])!;
+    return (arrObj) => fromArray(mapper, arrObj['arr'])!;
   }
 
   Null asNull(dynamic json) => null;

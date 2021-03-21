@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:discord/discord.dart';
 import 'package:discord/entities.dart';
 
-Future onReady(DiscordClient client, dynamic event) async {
+Future onReady(DiscordClient client, Ready event) async {
   print('Ready!');
 }
 
