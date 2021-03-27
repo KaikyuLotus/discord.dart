@@ -11,6 +11,24 @@ Future onMessageCreate(DiscordClient client, Message message) async {
   print('New message from ${message.author.username}');
 }
 
+Future onTypingEvent(DiscordClient client, TypingStartEvent event) async {
+  print('${event.member?.user?.username} is typing');
+}
+
+Future onReactionAdd(
+  DiscordClient client,
+  MessageReactionAddEvent event,
+) async {
+  print('${event.member?.user?.username} add reaction ${event.emoji.name}');
+}
+
+Future onGuildRoleUpdate(
+  DiscordClient client,
+  GuildRoleUpdateEvent event,
+) async {
+  print('Role ${event.role.name} new position is ${event.role.position}');
+}
+
 void main(List<String> arguments) async {
   var token = Platform.environment['BOT_TOKEN']!;
 
@@ -18,6 +36,9 @@ void main(List<String> arguments) async {
 
   client.onReady = onReady;
   client.onMessageCreate = onMessageCreate;
+  client.onTypingStart = onTypingEvent;
+  client.onMessageReactionAdd = onReactionAdd;
+  client.onGuildRoleUpdate = onGuildRoleUpdate;
 
   await client.run();
 

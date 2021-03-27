@@ -28,7 +28,8 @@ class Emoji {
     return Emoji(
       id: json['id'],
       name: json['name'],
-      roles: List<String>.from(json['roles']),
+      // TODO find a better way
+      roles: json['roles'] != null ? List<String>.from(json['roles']) : null,
       user: ifNotNull(User.fromJson, json['user']),
       requireColons: json['require_colons'],
       managed: json['managed'],

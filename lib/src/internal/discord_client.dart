@@ -8,7 +8,7 @@ import '../../discord.dart';
 import '../../entities.dart';
 import '../internal.dart';
 
-class DiscordClient {
+class DiscordClient extends DiscordEvents {
   static const int _apiVersion = 8;
 
   static const String encoding = 'json';
@@ -39,20 +39,6 @@ class DiscordClient {
     10: (e) => _onHello(OpHello.fromJson(e)),
     11: (e) {},
   };
-
-  // Event handlers
-  /// Handles READY gateway events
-  Future Function(DiscordClient client, Ready event)? onReady;
-
-  /// Handles CREATE_MESSAGE gateway events
-  Future Function(DiscordClient client, Message event)? onMessageCreate;
-
-  /// Handles CREATE_GUILD gateway events
-  Future Function(DiscordClient client, Guild guild)? onGuildCreate;
-
-  /// Gets called on any gateway event<br>
-  /// Where [type] is a string with the event type and [event] a dictionary
-  Future Function(DiscordClient client, String type, dynamic event)? onEvent;
 
   late final WebSocket _ws;
 
@@ -122,7 +108,6 @@ class DiscordClient {
   }
 
   Future _onGatewayEvent(OpDispatch event) async {
-
     _sequence = event.sequence;
 
     await _onEvent(event.type, event.data);
@@ -131,16 +116,11 @@ class DiscordClient {
     if (event.type == 'READY') {
       var readyEvent = Ready.fromJson(event.data);
       await _onReady(readyEvent);
-      return await onReady?.call(this, readyEvent);
+      await onReady?.call(this, readyEvent);
+      return;
     }
 
-    if (event.type == 'MESSAGE_CREATE') {
-      return await onMessageCreate?.call(this, Message.fromJson(event.data));
-    }
-
-    if (event.type == 'GUILD_CREATE') {
-      return await onGuildCreate?.call(this, Guild.fromJson(event.data));
-    }
+    await eventHandlers[event.type]?.call(this, event.data);
 
     print(json.encode(event));
   }
