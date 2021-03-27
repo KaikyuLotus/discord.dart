@@ -4,8 +4,8 @@ import '../../../entities.dart';
 import '../../internal.dart';
 
 class Interaction {
-
   // DiscordClient _client = DiscordClient("");
+  final int _clientIndex;
 
   final String id;
 
@@ -21,6 +21,7 @@ class Interaction {
   final int version;
 
   Interaction({
+    required int clientIndex,
     required this.id,
     required this.type,
     this.data,
@@ -30,10 +31,11 @@ class Interaction {
     this.user,
     required this.token,
     required this.version,
-  });
+  }) : _clientIndex = clientIndex;
 
-  static Interaction fromJson(Map<String, dynamic> json) {
+  static Interaction fromJson(int clientIndex, Map<String, dynamic> json) {
     return Interaction(
+      clientIndex: clientIndex,
       id: json['id'],
       type: InteractionType.forValue(json['type']),
       data: ifNotNull(ApplicationCommandInteractionData.fromJson, json['data']),
@@ -43,6 +45,30 @@ class Interaction {
       user: ifNotNull(User.fromJson, json['user']),
       token: json['token'],
       version: json['version'],
+    );
+  }
+
+  Future callback({
+    required InteractionResponseType type,
+    InteractionApplicationCommandCallbackData? data,
+  }) {
+    var client = clients[_clientIndex]!;
+    return client.interactions.callback(
+      id,
+      token: token,
+      type: type,
+      data: data,
+    );
+  }
+
+  Future editResponse({
+    required InteractionApplicationCommandCallbackData data,
+  }) {
+    var client = clients[_clientIndex]!;
+    return client.interactions.editResponse(
+      id,
+      token: token,
+      data: data,
     );
   }
 

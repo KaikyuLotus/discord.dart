@@ -24,8 +24,11 @@ class InteractionApplicationCommandCallbackData {
     return InteractionApplicationCommandCallbackData(
       tts: json['tts'],
       content: json['content'],
-      embeds: json['embeds'],
-      allowedMentions: json['allowed_mentions'],
+      embeds: fromArray(Embed.fromJson, json['embeds']),
+      allowedMentions: ifNotNull(
+        AllowedMentions.fromJson,
+        json['allowed_mentions'],
+      ),
       flags: json['flags'],
     );
   }

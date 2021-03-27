@@ -275,6 +275,6 @@ class DiscordEvents {
     'APPLICATION_COMMAND_DELETE': (c, d) =>
         onApplicationCommandDelete?.call(c, ApplicationCommand.fromJson(d)),
     'INTERACTION_CREATE': (c, d) =>
-        onInteractionCreate?.call(c, Interaction.fromJson(d)),
+        onInteractionCreate?.call(c, Interaction.fromJson(c.clientIndex, d)),
   };
 }

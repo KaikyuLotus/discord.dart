@@ -14,7 +14,7 @@ class InteractionResponse {
 
   static InteractionResponse fromJson(Map<String, dynamic> json) {
     return InteractionResponse(
-      type: json['type'],
+      type: InteractionResponseType.forValue(json['type']),
       data: ifNotNull(
         InteractionApplicationCommandCallbackData.fromJson,
         json['data'],

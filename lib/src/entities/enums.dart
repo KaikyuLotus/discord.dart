@@ -226,10 +226,10 @@ class ChannelType extends _Enum<int> {
   static const ChannelType guildText = ChannelType._(0);
   static const ChannelType dm = ChannelType._(1);
   static const ChannelType guildVoice = ChannelType._(2);
-  static const ChannelType groupDM = ChannelType._(2);
-  static const ChannelType guildCategory = ChannelType._(2);
-  static const ChannelType guildNews = ChannelType._(2);
-  static const ChannelType guildStore = ChannelType._(2);
+  static const ChannelType groupDM = ChannelType._(3);
+  static const ChannelType guildCategory = ChannelType._(4);
+  static const ChannelType guildNews = ChannelType._(5);
+  static const ChannelType guildStore = ChannelType._(6);
 
   static const values = {
     0: guildText,
@@ -250,7 +250,7 @@ class MessageActivityType extends _Enum<int> {
   static const MessageActivityType join = MessageActivityType._(1);
   static const MessageActivityType spectate = MessageActivityType._(2);
   static const MessageActivityType listen = MessageActivityType._(3);
-  static const MessageActivityType joinRequest = MessageActivityType._(3);
+  static const MessageActivityType joinRequest = MessageActivityType._(4);
 
   static const values = {
     1: join,
