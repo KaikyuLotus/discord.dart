@@ -8,10 +8,16 @@ import '../../discord.dart';
 import '../../entities.dart';
 import '../internal.dart';
 
+final clients = <DiscordClient?>[];
+
 class DiscordClient extends DiscordEvents {
   static const int _apiVersion = 8;
 
   static const String encoding = 'json';
+
+  late final application = ApplicationAPI(_http);
+
+  late final interactions = InteractionsAPI(_http);
 
   late final guilds = GuildsAPI(_http);
 
@@ -42,6 +48,10 @@ class DiscordClient extends DiscordEvents {
 
   late final WebSocket _ws;
 
+  late final String appId;
+
+  late final int clientIndex;
+
   final ConnectionProperties _connectionProperties;
 
   final int _largeThreshold;
@@ -70,7 +80,10 @@ class DiscordClient extends DiscordEvents {
         _largeThreshold = largeThreshold,
         _numShards = numShards,
         _connectionProperties = connectionProperties,
-        _guildSubscriptions = guildSubscriptions;
+        _guildSubscriptions = guildSubscriptions {
+    clientIndex = clients.length;
+    clients.add(this);
+  }
 
   Future run() async {
     // TODO get dynamic Websocket url
@@ -91,8 +104,8 @@ class DiscordClient extends DiscordEvents {
     print(stackTrace);
   }
 
-  Future _onWebSocketEvent(event) async {
-    try {
+  void _onWebSocketEvent(event) {
+    runZonedGuarded(() async {
       var data = json.decode('$event');
       var opCode = data['op'] as int;
 
@@ -101,24 +114,21 @@ class DiscordClient extends DiscordEvents {
       }
 
       print('Unknown op code: $opCode');
-    } on Exception catch (e, s) {
+    }, (e, s) {
       print('Could not handle update: $e\n$s');
       print(event);
-    }
+    });
   }
 
   Future _onGatewayEvent(OpDispatch event) async {
     _sequence = event.sequence;
 
+    if (event.type == 'READY') {
+      await _onReady(Ready.fromJson(event.data));
+    }
+
     await _onEvent(event.type, event.data);
     await onEvent?.call(this, event.data, event);
-
-    if (event.type == 'READY') {
-      var readyEvent = Ready.fromJson(event.data);
-      await _onReady(readyEvent);
-      await onReady?.call(this, readyEvent);
-      return;
-    }
 
     await eventHandlers[event.type]?.call(this, event.data);
 
@@ -160,10 +170,16 @@ class DiscordClient extends DiscordEvents {
   // Gateway events
 
   Future _onReady(Ready event) async {
-    // Empty impl
+    appId = event.application.id;
   }
 
   Future _onEvent(String type, dynamic event) async {
     // Empty impl
+  }
+
+  /// Call this method if you're not going to use this client anymore
+  void close() {
+    clients[clientIndex] = null;
+    _http.close();
   }
 }

@@ -206,6 +206,7 @@ class DiscordEvents {
   // Event handlers
   late final Map<String, Future? Function(DiscordClient, dynamic)>
       eventHandlers = {
+    'READY': (c, d) => onReady?.call(c, Ready.fromJson(d)),
     'CHANNEL_CREATE': (c, d) => onChannelCreate?.call(c, Channel.fromJson(d)),
     'CHANNEL_UPDATE': (c, d) => onChannelUpdate?.call(c, Channel.fromJson(d)),
     'CHANNEL_DELETE': (c, d) => onChannelDelete?.call(c, Channel.fromJson(d)),

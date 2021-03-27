@@ -70,4 +70,7 @@ class DiscordHTTPClient {
     var jsonData = json.decode(responseString);
     return converter(jsonData is List ? {'arr': jsonData} : jsonData);
   }
+
+  void close() => _client.close();
+
 }

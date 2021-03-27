@@ -2,12 +2,12 @@ library entities;
 
 class EmbedField {
   final String name;
-  final String url;
+  final String? url;
   final bool? inline;
 
   EmbedField({
     required this.name,
-    required this.url,
+    this.url,
     this.inline,
   });
 

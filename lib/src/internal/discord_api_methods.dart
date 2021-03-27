@@ -3,6 +3,74 @@ library discord;
 import '../../entities.dart';
 import '../internal.dart';
 
+class InteractionsAPI {
+  final DiscordHTTPClient _http;
+
+  const InteractionsAPI(this._http);
+
+  Future callback(
+    String interactionId, {
+    required String token,
+    required InteractionResponseType type,
+    InteractionApplicationCommandCallbackData? data,
+  }) {
+    var endpoint = '/interactions/$interactionId/$token/callback';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'post',
+      body: {
+        'type': type,
+        'data': data,
+      }..filterNullValues(),
+    );
+  }
+
+  Future editResponse(
+    String applicationId, {
+    required String token,
+    required InteractionApplicationCommandCallbackData data,
+  }) {
+    var endpoint = '/webhooks/$applicationId/$token/messages/@original';
+    return _http.request(
+      endpoint,
+      converter: _http.asNull,
+      method: 'patch',
+      body: data.toJson()..filterNullValues(),
+    );
+  }
+}
+
+class ApplicationAPI {
+  final DiscordHTTPClient _http;
+
+  const ApplicationAPI(this._http);
+
+  Future<dynamic> createSlashCommand(
+    String appId, {
+    required String name,
+    required String description,
+    required List<ApplicationCommandOption> options,
+    String? guildId,
+  }) {
+    var endpoint = '/applications/$appId';
+    if (guildId != null) {
+      endpoint += '/guilds/$guildId';
+    }
+    endpoint += '/commands';
+    return _http.request(
+      endpoint,
+      converter: (j) => j,
+      method: 'post',
+      body: {
+        'name': name,
+        'description': description,
+        'options': options,
+      },
+    );
+  }
+}
+
 class GuildsAPI {
   final DiscordHTTPClient _http;
 

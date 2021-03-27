@@ -1,8 +1,9 @@
 library entities;
 
+import '../../entities.dart';
+
 class AllowedMentions {
-  // TODO enum https://discord.com/developers/docs/resources/channel#allowed-mentions-object
-  final List<String> parse;
+  final List<AllowedMentionsType> parse;
   final List<String> roles;
   final List<String> users;
   final bool repliedUser;
@@ -15,8 +16,12 @@ class AllowedMentions {
   });
 
   static AllowedMentions fromJson(Map<String, dynamic> json) {
+    var parse = json['parse'] as List;
     return AllowedMentions(
-      parse: List<String>.from(json['parse']),
+      parse: List.generate(
+        parse.length,
+        (i) => AllowedMentionsType.forValue(parse[i]),
+      ),
       roles: List<String>.from(json['roles']),
       users: List<String>.from(json['users']),
       repliedUser: json['repliedUser'],

@@ -22,9 +22,7 @@ class Guild {
   final int explicitContentFilter;
   final List<Role> roles;
   final List<Emoji> emojis;
-
-  // TODO enum from https://discord.com/developers/docs/resources/guild#guild-object-guild-features
-  final List<String> features;
+  final List<GuildFeature> features;
   final int mfaLevel;
   final String? applicationId;
   final String systemChannelId;
@@ -101,6 +99,7 @@ class Guild {
   });
 
   static Guild fromJson(Map<String, dynamic> json) {
+    var features = json['features'];
     return Guild(
       id: json['id'],
       name: json['name'],
@@ -120,7 +119,10 @@ class Guild {
       explicitContentFilter: json['explicit_content_filter'],
       roles: fromArray(Role.fromJson, json['roles'])!,
       emojis: fromArray(Emoji.fromJson, json['emojis'])!,
-      features: List<String>.from(json['features']!),
+      features: List.generate(
+        features.length,
+        (i) => GuildFeature.forValue(features[i]),
+      ),
       mfaLevel: json['mfa_level'],
       applicationId: json['application_id'],
       systemChannelId: json['system_channel_id'],

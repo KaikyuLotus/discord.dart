@@ -21,7 +21,7 @@ class InviteMetadata extends Invite {
     required Channel channel,
     User? inviter,
     User? targetUser,
-    int? targetUserType,
+    TargetUserType? targetUserType,
     int? approximatePresenceCount,
     int? approximateMemberCount,
   }) : super(
@@ -47,7 +47,10 @@ class InviteMetadata extends Invite {
       channel: Channel.fromJson(json['channel']!),
       inviter: ifNotNull(User.fromJson, json['inviter']),
       targetUser: ifNotNull(User.fromJson, json['target_user']),
-      targetUserType: json['target_user_type'],
+      targetUserType: ifNotNull(
+        TargetUserType.forValue,
+        json['target_user_type'],
+      ),
       approximatePresenceCount: json['approximate_presence_count'],
       approximateMemberCount: json['approximate_member_count'],
     );

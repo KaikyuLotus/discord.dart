@@ -10,9 +10,7 @@ class GuildPreview {
   final String? splash;
   final String? discoverySplash;
   final List<Emoji> emojis;
-
-  // TODO enum from https://discord.com/developers/docs/resources/guild#guild-object-guild-features
-  final List<String> features;
+  final List<GuildFeature> features;
   final int approximateMemberCount;
   final int approximatePresenceCount;
   final String? description;
@@ -31,6 +29,7 @@ class GuildPreview {
   });
 
   static GuildPreview fromJson(Map<String, dynamic> json) {
+    var features = json['features'];
     return GuildPreview(
       id: json['id'],
       name: json['name'],
@@ -38,7 +37,10 @@ class GuildPreview {
       splash: json['splash'],
       discoverySplash: json['discoverySplash'],
       emojis: fromArray(Emoji.fromJson, json['emojis'])!,
-      features: List<String>.from(json['features']),
+      features: List.generate(
+        features.length,
+        (i) => GuildFeature.forValue(features[i]),
+      ),
       approximateMemberCount: json['approximateMemberCount'],
       approximatePresenceCount: json['approximatePresenceCount'],
       description: json['description'],

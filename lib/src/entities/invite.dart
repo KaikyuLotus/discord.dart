@@ -9,9 +9,7 @@ class Invite {
   final Channel channel;
   final User? inviter;
   final User? targetUser;
-
-  // TODO enum from https://discord.com/developers/docs/resources/invite#invite-object-target-user-types
-  final int? targetUserType;
+  final TargetUserType? targetUserType;
   final int? approximatePresenceCount;
   final int? approximateMemberCount;
 
@@ -33,7 +31,10 @@ class Invite {
       channel: Channel.fromJson(json['channel']!),
       inviter: ifNotNull(User.fromJson, json['inviter']),
       targetUser: ifNotNull(User.fromJson, json['target_user']),
-      targetUserType: json['target_user_type'],
+      targetUserType: ifNotNull(
+        TargetUserType.forValue,
+        json['target_user_type'],
+      ),
       approximatePresenceCount: json['approximate_presence_count'],
       approximateMemberCount: json['approximate_member_count'],
     );

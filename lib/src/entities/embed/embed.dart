@@ -5,10 +5,7 @@ import '../../internal.dart';
 
 class Embed {
   final String? title;
-
-  // rich, image, video, gifv, article, link
-  // TODO enum from https://discord.com/developers/docs/resources/channel#embed-object-embed-types
-  final String? type;
+  final EmbedType? type;
   final String? description;
   final String? url;
   final String? timestamp; // TODO ISO timestamp
@@ -40,7 +37,7 @@ class Embed {
   static Embed fromJson(Map<String, dynamic> json) {
     return Embed(
       title: json['title'],
-      type: json['type'],
+      type: EmbedType.forValue(json['type']),
       description: json['description'],
       url: json['url'],
       timestamp: json['timestamp'],

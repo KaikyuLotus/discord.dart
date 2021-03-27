@@ -1,8 +1,9 @@
 library entities;
 
+import '../../../entities.dart';
+
 class MessageActivity {
-  // TODO enum https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
-  final int type;
+  final MessageActivityType type;
   final String? partyId;
 
   MessageActivity({
@@ -12,7 +13,7 @@ class MessageActivity {
 
   static MessageActivity fromJson(Map<String, dynamic> json) {
     return MessageActivity(
-      type: json['type'],
+      type: MessageActivityType.forValue(json['type']),
       partyId: json['party_id'],
     );
   }

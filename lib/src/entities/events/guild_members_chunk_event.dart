@@ -1,5 +1,7 @@
 library entities;
 
+import 'package:discord/src/internal.dart';
+
 import '../../../entities.dart';
 
 class GuildMembersChunkEvent {
@@ -24,11 +26,11 @@ class GuildMembersChunkEvent {
   static GuildMembersChunkEvent fromJson(Map<String, dynamic> json) {
     return GuildMembersChunkEvent(
       guildId: json['guild_id'],
-      members: json['members'],
+      members: fromArray(GuildMember.fromJson, json['members'])!,
       chunkIndex: json['chunk_index'],
       chunkCount: json['chunk_count'],
       notFound: json['not_found'],
-      presences: json['presences'],
+      presences: fromArray(PresenceUpdate.fromJson, json['presences']),
       nonce: json['nonce'],
     );
   }

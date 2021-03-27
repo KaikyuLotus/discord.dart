@@ -4,8 +4,7 @@ import '../../entities.dart';
 import '../internal.dart';
 
 class ApplicationCommandOption {
-  // TODO enum from https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
-  final int type;
+  final ApplicationCommandOptionType type;
   final String name;
   final String description;
   final bool? required;
@@ -23,11 +22,14 @@ class ApplicationCommandOption {
 
   static ApplicationCommandOption fromJson(Map<String, dynamic> json) {
     return ApplicationCommandOption(
-      type: json['type'],
+      type: ApplicationCommandOptionType.forValue(json['type']),
       name: json['name'],
       description: json['description'],
       required: json['required'],
-      choices: fromArray(ApplicationCommandOptionChoice.fromJson, json['choices'],),
+      choices: fromArray(
+        ApplicationCommandOptionChoice.fromJson,
+        json['choices'],
+      ),
       options: fromArray(ApplicationCommandOption.fromJson, json['options']),
     );
   }
@@ -40,6 +42,6 @@ class ApplicationCommandOption {
       'required': required,
       'choices': choices,
       'options': options,
-    };
+    }..filterNullValues();
   }
 }

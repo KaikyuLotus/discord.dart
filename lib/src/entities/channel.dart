@@ -5,9 +5,7 @@ import '../internal.dart';
 
 class Channel {
   final String id;
-
-  // TODO enum from https://discord.com/developers/docs/resources/channel#channel-object-channel-types
-  final int type;
+  final ChannelType type;
   final String? guildId;
   final int? position;
   final List<Overwrite>? permissionOverwrites;
@@ -49,7 +47,7 @@ class Channel {
   static Channel fromJson(Map<String, dynamic> json) {
     return Channel(
       id: json['id'],
-      type: json['type'],
+      type: ChannelType.forValue(json['type']),
       guildId: json['guild_id'],
       position: json['position'],
       permissionOverwrites: fromArray(

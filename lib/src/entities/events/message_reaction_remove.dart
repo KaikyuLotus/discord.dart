@@ -23,7 +23,7 @@ class MessageReactionRemoveEvent {
       channelId: json['channel_id'],
       messageId: json['message_id'],
       guildId: json['guild_id'],
-      emoji: json['emoji'],
+      emoji: Emoji.fromJson(json['emoji']),
     );
   }
 

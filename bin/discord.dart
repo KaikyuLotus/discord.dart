@@ -5,28 +5,62 @@ import 'package:discord/entities.dart';
 
 Future onReady(DiscordClient client, Ready event) async {
   print('Ready!');
+
+  /*var options = [
+    ApplicationCommandOption(
+      type: ApplicationCommandOptionType.string,
+      name: 'tags',
+      description: 'Space separated tags',
+      required: true,
+    ),
+    ApplicationCommandOption(
+      type: ApplicationCommandOptionType.integer,
+      name: 'count',
+      description: 'How many images to get',
+      required: false,
+    ),
+  ];
+
+  await client.application.createSlashCommand(
+    '820391972463575100',
+    name: 'danbooru',
+    description: 'Search images on danbooru',
+    options: options,
+    guildId: '805087651450978334',
+  );*/
+}
+
+Future onInteractionCreate(
+  DiscordClient client,
+  Interaction interaction,
+) async {
+  print(interaction.data?.name);
+  for (var option in interaction.data?.options ??
+      <ApplicationCommandInteractionDataOption>[]) {
+    print(option.name);
+    print(option.value);
+  }
+
+  await client.interactions.callback(
+    interaction.id,
+    token: interaction.token,
+    type: InteractionResponseType.deferredChannelMessageWithSource,
+  );
+
+  await Future.delayed(Duration(seconds: 3));
+
+  await client.interactions.editResponse(
+    '820391972463575100',
+    token: interaction.token,
+    data: InteractionApplicationCommandCallbackData(
+      content: 'Done working!',
+    )
+  );
+
 }
 
 Future onMessageCreate(DiscordClient client, Message message) async {
   print('New message from ${message.author.username}');
-}
-
-Future onTypingEvent(DiscordClient client, TypingStartEvent event) async {
-  print('${event.member?.user?.username} is typing');
-}
-
-Future onReactionAdd(
-  DiscordClient client,
-  MessageReactionAddEvent event,
-) async {
-  print('${event.member?.user?.username} add reaction ${event.emoji.name}');
-}
-
-Future onGuildRoleUpdate(
-  DiscordClient client,
-  GuildRoleUpdateEvent event,
-) async {
-  print('Role ${event.role.name} new position is ${event.role.position}');
 }
 
 void main(List<String> arguments) async {
@@ -36,17 +70,7 @@ void main(List<String> arguments) async {
 
   client.onReady = onReady;
   client.onMessageCreate = onMessageCreate;
-  client.onTypingStart = onTypingEvent;
-  client.onMessageReactionAdd = onReactionAdd;
-  client.onGuildRoleUpdate = onGuildRoleUpdate;
+  client.onInteractionCreate = onInteractionCreate;
 
   await client.run();
-
-  var members = await client.guilds.listGuildMembers(
-    '805087651450978334',
-    limit: 100,
-  );
-  for (var member in members) {
-    print(member.user?.username);
-  }
 }
