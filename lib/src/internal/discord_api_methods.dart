@@ -3,6 +3,22 @@ library discord;
 import '../../entities.dart';
 import '../internal.dart';
 
+class GatewayAPI {
+  final DiscordHTTPClient _http;
+
+  const GatewayAPI(this._http);
+
+  Future<String> getGateway() {
+    var endpoint = '/gateway';
+    return _http.request(endpoint, converter: (J) => J['url']);
+  }
+
+  Future<BotGateway> getGatewayBot() {
+    var endpoint = '/gateway/bot';
+    return _http.request(endpoint, converter: BotGateway.fromJson);
+  }
+}
+
 class InteractionsAPI {
   final DiscordHTTPClient _http;
 

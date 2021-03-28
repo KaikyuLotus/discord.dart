@@ -4,6 +4,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
+
 import '../../discord.dart';
 import '../../entities.dart';
 import '../internal.dart';
@@ -11,6 +13,8 @@ import '../internal.dart';
 final clients = <DiscordClient?>[];
 
 class DiscordClient extends DiscordEvents {
+  static final log = Logger('discord.dart');
+
   static const int _apiVersion = 8;
 
   static const String encoding = 'json';
@@ -37,6 +41,8 @@ class DiscordClient extends DiscordEvents {
 
   late final webhook = WebhookAPI(_http);
 
+  late final _gateway = GatewayAPI(_http);
+
   late final Map<int, Function(dynamic)> handlers = {
     0: (e) => _onGatewayEvent(OpDispatch.fromJson(e)),
     1: (e) => _onHeartbeatEvent(OpHeartbeat.fromJson(e)),
@@ -46,6 +52,7 @@ class DiscordClient extends DiscordEvents {
     11: (e) {},
   };
 
+  var _wsOpen = false;
   late final WebSocket _ws;
 
   late final String appId;
@@ -85,54 +92,71 @@ class DiscordClient extends DiscordEvents {
     clients.add(this);
   }
 
-  Future run() async {
-    // TODO get dynamic Websocket url
+  Future<BotGateway> run() async {
+    // TODO add support for users
+    var botGateway = await _gateway.getGatewayBot();
+    log.fine('Creating and opening websocket...');
     _ws = await WebSocket.connect(
-      'wss://gateway.discord.gg/?v=$_apiVersion&encoding=$encoding',
+      '${botGateway.url}?v=$_apiVersion&encoding=$encoding',
     );
-    print('Listening WebSocket...');
+    _wsOpen = true;
+    log.fine('Listening WebSocket...');
     _ws.listen(_onWebSocketEvent).onError(_onWebSocketError);
-    _ws.handleError(print);
+    _ws.handleError(_onWebSocketError);
+    return botGateway;
   }
 
-  Future _send(Rpcable data) async {
+  void _send(Rpcable data) {
+    log.finest('Sending data to websocket');
     _ws.add(json.encode(data.rpc()));
   }
 
-  void _onWebSocketError(Object error, [StackTrace? stackTrace]) {
-    print(error);
-    print(stackTrace);
+  void _onWebSocketError(Object e, [StackTrace? s]) {
+    log.severe('Websocket error', e, s);
+  }
+
+  void _onError(Object e, [StackTrace? s]) {
+    log.severe('Something went wrong', e, s);
   }
 
   void _onWebSocketEvent(event) {
     runZonedGuarded(() async {
+      log.finest('New websocket event');
       var data = json.decode('$event');
       var opCode = data['op'] as int;
+      log.finest('Websocket event is OP code $opCode');
 
       if (handlers.containsKey(opCode)) {
         return await handlers[opCode]!(data);
       }
 
-      print('Unknown op code: $opCode');
-    }, (e, s) {
-      print('Could not handle update: $e\n$s');
-      print(event);
-    });
+      log.warning('No handler for OP code $opCode');
+    }, _onError);
   }
 
   Future _onGatewayEvent(OpDispatch event) async {
     _sequence = event.sequence;
+    log.finest('New event with sequence #$_sequence and type ${event.type}');
 
     if (event.type == 'READY') {
       await _onReady(Ready.fromJson(event.data));
     }
 
-    await _onEvent(event.type, event.data);
+    log.finest('Calling generic event handler');
     await onEvent?.call(this, event.data, event);
 
+    log.finest('Calling handler for type ${event.type}');
     await eventHandlers[event.type]?.call(this, event.data);
+  }
 
-    print(json.encode(event));
+  void _startHeartbeatTimer(int interval) {
+    Timer.periodic(
+      Duration(milliseconds: interval),
+      (t) {
+        if (!_wsOpen) return t.cancel();
+        _send(OpHeartbeat(_sequence));
+      },
+    );
   }
 
   void _identify() {
@@ -156,30 +180,26 @@ class DiscordClient extends DiscordEvents {
 
   // OP handlers
   void _onHello(OpHello hello) {
-    Timer.periodic(
-      Duration(milliseconds: hello.heartbeatInterval),
-      (t) => _send(OpHeartbeat(_sequence)),
-    );
+    _startHeartbeatTimer(hello.heartbeatInterval);
     _identify();
   }
 
   void _onInvalidSession(OpInvalidSession invalidSession) {
-    print('Warning, invalid session'); // TODO crash?
+    // TODO crash?
+    log.warning('Invalid session, resumable: ${invalidSession.resumable}');
   }
 
   // Gateway events
 
   Future _onReady(Ready event) async {
     appId = event.application.id;
-  }
-
-  Future _onEvent(String type, dynamic event) async {
-    // Empty impl
+    log.info('DiscordClient [AppID:$appId] is now ready');
   }
 
   /// Call this method if you're not going to use this client anymore
   void close() {
     clients[clientIndex] = null;
     _http.close();
+    _ws.close();
   }
 }

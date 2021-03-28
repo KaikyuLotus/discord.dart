@@ -1,8 +1,7 @@
 library entities;
 
-import 'package:discord/src/internal.dart';
-
 import '../../../entities.dart';
+import '../../internal.dart';
 
 class GuildMembersChunkEvent {
   final String guildId;

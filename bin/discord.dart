@@ -1,62 +1,20 @@
 import 'dart:io';
 
-import 'package:discord/discord.dart';
-import 'package:discord/entities.dart';
+import 'package:lib_discord/discord.dart';
+import 'package:lib_discord/entities.dart';
+import 'package:logging/logging.dart';
+
+void configureLogging() {
+  Logger.root.level = Level.FINEST;
+  Logger.root.onRecord.listen((r) {
+    stderr.writeln('[${r.level.name} ${r.time} ${r.loggerName}] ${r.message}');
+    if (r.error != null)stderr.write('${r.error}');
+    if (r.stackTrace != null) stderr.write('${r.stackTrace}');
+  });
+}
 
 Future onReady(DiscordClient client, Ready event) async {
   print('Ready!');
-
-  /*var options = [
-    ApplicationCommandOption(
-      type: ApplicationCommandOptionType.string,
-      name: 'tags',
-      description: 'Space separated tags',
-      required: true,
-    ),
-    ApplicationCommandOption(
-      type: ApplicationCommandOptionType.integer,
-      name: 'count',
-      description: 'How many images to get',
-      required: false,
-    ),
-  ];
-
-  await client.application.createSlashCommand(
-    '820391972463575100',
-    name: 'danbooru',
-    description: 'Search images on danbooru',
-    options: options,
-    guildId: '805087651450978334',
-  );*/
-}
-
-Future onInteractionCreate(
-  DiscordClient client,
-  Interaction interaction,
-) async {
-  print(interaction.data?.name);
-  for (var option in interaction.data?.options ??
-      <ApplicationCommandInteractionDataOption>[]) {
-    print(option.name);
-    print(option.value);
-  }
-
-  await client.interactions.callback(
-    interaction.id,
-    token: interaction.token,
-    type: InteractionResponseType.deferredChannelMessageWithSource,
-  );
-
-  await Future.delayed(Duration(seconds: 3));
-
-  await client.interactions.editResponse(
-    '820391972463575100',
-    token: interaction.token,
-    data: InteractionApplicationCommandCallbackData(
-      content: 'Done working!',
-    )
-  );
-
 }
 
 Future onMessageCreate(DiscordClient client, Message message) async {
@@ -64,13 +22,14 @@ Future onMessageCreate(DiscordClient client, Message message) async {
 }
 
 void main(List<String> arguments) async {
+  configureLogging();
+
   var token = Platform.environment['BOT_TOKEN']!;
 
   var client = DiscordClient(token, intents: Intent.all);
 
   client.onReady = onReady;
   client.onMessageCreate = onMessageCreate;
-  client.onInteractionCreate = onInteractionCreate;
 
   await client.run();
 }
